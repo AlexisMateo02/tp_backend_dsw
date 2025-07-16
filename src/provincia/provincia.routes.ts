@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { sanitizeProvincia, findAll, findOne, add, update, remove } from './provincia.controller.js';
+import { sanitizeProvincia, findAll, findOne, add, update, remove } from './provincia.controller';
 
 export const provinciarouter = Router();
 

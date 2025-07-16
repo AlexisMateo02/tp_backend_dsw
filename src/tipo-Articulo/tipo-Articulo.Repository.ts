@@ -1,5 +1,5 @@
-import { Repository } from "../shared/repository.js";
-import { TipoArticulo } from "./tipo-Articulo.entity.js";
+import { Repository } from "../shared/repository";
+import { TipoArticulo } from "./tipo-Articulo.entity";
 
 const TiposArticulos = [
     new TipoArticulo(

@@ -1,8 +1,8 @@
 import {Request, Response, NextFunction} from 'express';
-import {TipoArticulo} from './tipo-Articulo.entity.js';
-import { TipoArticuloRepository } from './tipo-Articulo.Repository.js'; 
+import {TipoArticulo} from './tipo-Articulo.entity';
+import { TipoArticulorepository } from './tipo-Articulo.repository'; 
 
-const Repository = new TipoArticuloRepository();
+const repository = new TipoArticulorepository();
 
 
 function sanitizeTipoArticulo(req: Request, res: Response, next: NextFunction) {
@@ -23,11 +23,11 @@ function sanitizeTipoArticulo(req: Request, res: Response, next: NextFunction) {
 
 
 function findAll (req:Request,res:Response){
-    res.json({data: Repository.findAll()});
+    res.json({data: repository.findAll()});
 }
 
 function findOne(req: Request, res: Response) {
-    const TipoArticulo = Repository.findOne({id: req.params.id});
+    const TipoArticulo = repository.findOne({id: req.params.id});
     if(!TipoArticulo) {
         return res.status(404).json({message: "TipoArticulo not found"});
     }
@@ -42,14 +42,14 @@ function add( req: Request, res: Response){
         inpunt.usoPrincipal
     );
 
-const tipoArticulo = Repository.add(TipoArticuloInput);
+const tipoArticulo = repository.add(TipoArticuloInput);
 return res.status(201).send({message: "TipoArticulo created", data: TipoArticulo});
 
 }
 
 function update (req: Request, res: Response){ 
   req.body.sanitizedInput.id = req.params.id
-  const TipoArticulo = Repository.update(req.body.sanitizedInput)
+  const TipoArticulo = repository.update(req.body.sanitizedInput)
 
   if (!TipoArticulo) {
     return res.status(404).send({ message: 'TipoArticulo not found' })}
@@ -60,7 +60,7 @@ function update (req: Request, res: Response){
 
 function remove(req: Request, res: Response) {
   const id = req.params.id
-  const TipoArticulo = Repository.delete({ id })
+  const TipoArticulo = repository.delete({ id })
 
   if (!TipoArticulo) {
     res.status(404).send({ message: 'TipoArticulo not found' })

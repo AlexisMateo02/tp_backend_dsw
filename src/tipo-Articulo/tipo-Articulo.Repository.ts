@@ -9,7 +9,7 @@ const TiposArticulos = [
     )
 ]
 
-export class TipoArticuloRepository implements Repository<TipoArticulo> {
+export class TipoArticulorepository implements Repository<TipoArticulo> {
 
     public findAll(): TipoArticulo[] | undefined { 
         return TiposArticulos;

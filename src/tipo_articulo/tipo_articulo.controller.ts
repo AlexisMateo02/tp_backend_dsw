@@ -1,6 +1,6 @@
 import {Request, Response, NextFunction} from 'express';
-import {TipoArticulo} from './tipo-Articulo.entity';
-import { TipoArticulorepository } from './tipo-Articulo.repository'; 
+import {TipoArticulo} from './tipo_articulo.entity.js';
+import { TipoArticulorepository } from './tipo_articulo.repository.js'; 
 
 const repository = new TipoArticulorepository();
 

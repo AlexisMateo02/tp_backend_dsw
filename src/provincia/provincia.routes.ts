@@ -1,11 +1,11 @@
 import { Router } from "express";
-import { sanitizeProvincia, findAll, findOne, add, update, remove } from './provincia.controller';
+import { sanitizeProvincia, findAll, findOne, add, update, remove } from './provincia.controller.js';
 
-export const provinciarouter = Router();
+export const provinciaRouter = Router();
 
-provinciarouter.get("/", findAll);
-provinciarouter.get("/:codProv", findOne);
-provinciarouter.post("/", sanitizeProvincia, add);
-provinciarouter.put("/:codProv", sanitizeProvincia, update);
-provinciarouter.patch("/:codProv", sanitizeProvincia, update);
-provinciarouter.delete("/:codProv", remove);
+provinciaRouter.get("/", findAll);
+provinciaRouter.get("/:codProv", findOne);
+provinciaRouter.post("/", sanitizeProvincia, add);
+provinciaRouter.put("/:codProv", sanitizeProvincia, update);
+provinciaRouter.patch("/:codProv", sanitizeProvincia, update);
+provinciaRouter.delete("/:codProv", remove);

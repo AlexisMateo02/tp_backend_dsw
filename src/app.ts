@@ -1,13 +1,13 @@
 import express from "express";
-import { tipoArticulorouter } from "./tipo-Articulo/tipo-Articulo.routes.js";
-import { provinciarouter } from "./provincia/provincia.routes.js";
+import { tipoArticuloRouter } from "./tipo_articulo/tipo_articulo.routes.js";
+import { provinciaRouter } from "./provincia/provincia.routes.js";
 
 const app = express()
 app.use(express.json());
 
-app.use("/api/tipoArticulo",tipoArticulorouter)
+app.use("/api/tipoArticulo",tipoArticuloRouter)
 
-app.use("/api/provincia", provinciarouter)
+app.use("/api/provincia", provinciaRouter)
 
 app.use((_, res) => {
   return res.status(404).send({ message: 'Resource not found' })

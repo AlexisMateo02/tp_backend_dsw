@@ -1,7 +1,6 @@
 ### obtener todos los characters
 GET http://localhost:3000/api/tipoArticulo
 
-
 ### obtener un character
 GET http://localhost:3000/api/tipoArticulo/a02b91bc-3769-4221-beb1-d7a3aeba7dad
 
@@ -10,7 +9,7 @@ POST http://localhost:3000/api/tipoArticulo
 Content-Type: application/json
 
 {
-    "id": "32",
+    "id": "a02b91bc-3769-4221-beb1-d7a3aeba7dad",
     "nombre": "asv",
     "usoPrincipal": "aa"
 }

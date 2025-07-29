@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
-import { Provincia } from './provincia.entity';
-import { Provinciarepository } from './provincia.repository';
+import { Provincia } from './provincia.entity.js';
+import { ProvinciaRepository } from './provincia.repository.js';
 
-const repository = new Provinciarepository();
+const repository = new ProvinciaRepository();
 
 function sanitizeProvincia(req: Request, res: Response, next: NextFunction) {
     req.body.sanitizedInput = {

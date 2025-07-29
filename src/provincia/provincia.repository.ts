@@ -1,5 +1,5 @@
-import { Repository } from "../shared/repository";
-import { Provincia } from "./provincia.entity";
+import { Repository } from "../shared/repository.js";
+import { Provincia } from "./provincia.entity.js";
 
 const Provincias = [
     new Provincia(
@@ -9,15 +9,15 @@ const Provincias = [
     )
 ]
 
-export class Provinciarepository implements Repository<Provincia> {
+export class ProvinciaRepository implements Repository<Provincia> {
 
     public findAll(): Provincia[] | undefined { 
         return Provincias;
     }
 
-public findOne(item: {id:string}): Provincia | undefined {
-  return Provincias.find((provincia)=> provincia.codProv === item.id);
-}
+    public findOne(item: {id: string}): Provincia | undefined {
+        return Provincias.find((provincia) => provincia.codProv === item.id);
+    }
 
 
     public add(item: Provincia): Provincia | undefined {
@@ -32,13 +32,13 @@ public findOne(item: {id:string}): Provincia | undefined {
             return Provincias[ProvinciaIdx];
         }
     }
-public delete(item: {id:string}): Provincia | undefined {
-  const idx = Provincias.findIndex((provincia) => provincia.codProv === item.id);
-  if (idx !== -1) {
-    const deleted = Provincias[idx];
-    Provincias.splice(idx, 1);
-    return deleted;
-  }
-  return undefined;
-}
+    public delete(item: {id:string}): Provincia | undefined {
+        const idx = Provincias.findIndex((provincia) => provincia.codProv === item.id);
+        if (idx !== -1) {
+            const deleted = Provincias[idx];
+            Provincias.splice(idx, 1);
+            return deleted;
+        }
+        return undefined;
+    }
 }

@@ -1,15 +1,15 @@
 import {Request, Response, NextFunction} from 'express';
-import {TipoArticulo} from './tipo_articulo.entity.js';
-import { TipoArticulorepository } from './tipo_articulo.repository.js'; 
+import {ArticleType} from './articleType.entity.js';
+import { ArticleTyperepository } from './articleType.repository.js'; 
 
-const repository = new TipoArticulorepository();
+const repository = new ArticleTyperepository();
 
 
-function sanitizeTipoArticulo(req: Request, res: Response, next: NextFunction) {
+function sanitizeArticleType(req: Request, res: Response, next: NextFunction) {
  req.body.sanitizedInput = {
     id: req.body.id,
-    nombre: req.body.nombre,
-    usoPrincipal: req.body.usoPrincipal
+    name: req.body.name,
+    mainUse: req.body.mainUse
     };
     //more checks here
 
@@ -27,42 +27,42 @@ function findAll (req:Request,res:Response){
 }
 
 function findOne(req: Request, res: Response) {
-    const TipoArticulo = repository.findOne({id: req.params.id});
-    if(!TipoArticulo) {
+    const ArticleType = repository.findOne({id: req.params.id});
+    if(!ArticleType) {
         return res.status(404).json({message: "TipoArticulo not found"});
     }
-    res.json({data: TipoArticulo});
+    res.json({data: ArticleType});
 }
 
 function add( req: Request, res: Response){
     const inpunt = req.body.sanitizedInput;
-    const TipoArticuloInput = new TipoArticulo(
+    const ArticleTypeInput = new ArticleType(
         inpunt.id, 
-        inpunt.nombre, 
-        inpunt.usoPrincipal
+        inpunt.name, 
+        inpunt.mainUse
     );
 
-const tipoArticulo = repository.add(TipoArticuloInput);
-return res.status(201).send({message: "TipoArticulo created", data: TipoArticulo});
+const articleType = repository.add(ArticleTypeInput);
+return res.status(201).send({message: "TipoArticulo created", data: ArticleType});
 
 }
 
 function update (req: Request, res: Response){ 
   req.body.sanitizedInput.id = req.params.id
-  const TipoArticulo = repository.update(req.body.sanitizedInput)
+  const ArticleType = repository.update(req.body.sanitizedInput)
 
-  if (!TipoArticulo) {
+  if (!ArticleType) {
     return res.status(404).send({ message: 'TipoArticulo not found' })}
 
-  return res.status(200).send({ message: 'TipoArticulo updated successfully', data: TipoArticulo })
+  return res.status(200).send({ message: 'TipoArticulo updated successfully', data: ArticleType })
 }
 
 
 function remove(req: Request, res: Response) {
   const id = req.params.id
-  const TipoArticulo = repository.delete({ id })
+  const ArticleType = repository.delete({ id })
 
-  if (!TipoArticulo) {
+  if (!ArticleType) {
     res.status(404).send({ message: 'TipoArticulo not found' })
   } else {
     res.status(200).send({ message: 'TipoArticulo deleted successfully' })

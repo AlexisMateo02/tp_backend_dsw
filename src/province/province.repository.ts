@@ -1,5 +1,5 @@
 import { Repository } from "../shared/repository.js";
-import { Provincia } from "./provincia.entity.js";
+import { Provincia } from "./province.entity.js";
 
 const Provincias = [
     new Provincia(

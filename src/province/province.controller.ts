@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { Provincia } from './provincia.entity.js';
+import { Provincia } from './province.entity.js';
 import { ProvinciaRepository } from './provincia.repository.js';
 
 const repository = new ProvinciaRepository();
@@ -7,7 +7,7 @@ const repository = new ProvinciaRepository();
 function sanitizeProvincia(req: Request, res: Response, next: NextFunction) {
     req.body.sanitizedInput = {
         codProv: req.body.codProv,
-        nombreProv: req.body.nombreProv,
+        nameProv: req.body.nameProv,
         codPais: req.body.codPais
     };
     Object.keys(req.body.sanitizedInput).forEach((key) => {
@@ -34,7 +34,7 @@ function add(req: Request, res: Response) {
     const input = req.body.sanitizedInput;
     const nuevaProvincia = new Provincia(
         input.codProv,
-        input.nombreProv,
+        input.nameProv,
         input.codPais
     );
     const provinciaCreada = repository.add(nuevaProvincia);

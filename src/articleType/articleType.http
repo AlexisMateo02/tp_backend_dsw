@@ -1,38 +1,66 @@
-### obtener todos los characters
-GET http://localhost:3000/api/tipoArticulo
+### GET ALL 
+### Obtener todas los tipos de artículo
+GET http://localhost:3000/api/articleTypes
 
-### obtener un character
-GET http://localhost:3000/api/tipoArticulo/a02b91bc-3769-4221-beb1-d7a3aeba7dad
+### GET ONE
+### Obtener un tipo de artículo
+GET http://localhost:3000/api/articleTypes/{{idToGet}}
 
-### crear un nuevo character
-POST http://localhost:3000/api/tipoArticulo
+### POST
+### Crear un nuevo tipo de artículo
+POST http://localhost:3000/api/articleTypes
 Content-Type: application/json
 
 {
-    "id": "a02b91bc-3769-4221-beb1-d7a3aeba7dad",
-    "nombre": "asv",
-    "usoPrincipal": "aa"
+    "name": "Remo",
+    "mainUse": "Impulsar kayak"
 }
 
-### modificar un character (PUT - recurso completo e idempotente)
-PUT http://localhost:3000/api/tipoArticulo/a02b91bc-3769-4221-beb1-d7a3aeba7dad
+### POST 2
+# @name createArticleTypeToGet
+POST http://localhost:3000/api/articleTypes
 Content-Type: application/json
 
 {
-  "id": "a02b91bc-3769-4221-beb1-d7a3aeba7dad",
-  "nombre": "Nuevo Nombre",
-  "usoPrincipal": "Nuevo Uso Principal"
+    "name": "Chaleco salvavidas",
+    "mainUse": "Brindar flotación y seguridad al navegante"
 }
 
-### modificar un character (PATCH - recurso parcial)
-PATCH http://localhost:3000/api/tipoArticulo/a02b91bc-3769-4221-beb1-d7a3aeba7dad
+### POST 3
+# @name createArticleTypeToUpdate
+POST http://localhost:3000/api/articleTypes
 Content-Type: application/json
 
 {
-    "id": "a02b91bc-3769-4221-beb1-d7a3aeba7dad",
-    "nombre": "Nombre Modificado",
-    "usoPrincipal": "Uso Principal Modificado"
+    "name": "Carro portakayak",
+    "mainUse": "Transportar el kayak fácilmente"
 }
 
-### borrar un character
-DELETE http://localhost:3000/api/tipoArticulo/a02b91bc-3769-4221-beb1-d7a3aeba7dad
+### POST 4
+# @name createArticleTypeToDelete
+POST http://localhost:3000/api/articleTypes
+Content-Type: application/json
+
+{
+    "name": "Guantes de remo",
+    "mainUse": "Proteger las manos y mejorar el agarre"
+}
+
+### PUT
+### Modificar un tipo de artículo
+PUT http://localhost:3000/api/articleTypes/{{idToUpdate}}
+Content-Type: application/json
+
+{
+    "name": "Carro portakayak",
+    "mainUse": "Transportar el kayak por tierra fácilmente"
+}
+
+### DELETE
+### Borrar un tipo de artículo
+DELETE http://localhost:3000/api/articleTypes/{{idToDelete}}
+
+### IDs
+@idToGet = {{createArticleTypeToGet.response.body.data.id}}
+@idToUpdate = {{createArticleTypeToUpdate.response.body.data.id}}
+@idToDelete = {{createArticleTypeToDelete.response.body.data.id}}

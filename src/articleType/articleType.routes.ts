@@ -1,11 +1,11 @@
 import { Router } from "express";
-import { sanitizeTipoArticulo, findAll, findOne, add, update, remove } from './tipo_articulo.controller.js';
+import { controllerArticleType } from "./articleType.controller.js";
 
-export const tipoArticuloRouter = Router();
+export const articleTypeRouter = Router();
 
-tipoArticuloRouter.get("/", findAll);
-tipoArticuloRouter.get("/:id", findOne);
-tipoArticuloRouter.post("/", sanitizeTipoArticulo, add);
-tipoArticuloRouter.put("/:id", sanitizeTipoArticulo, update);
-tipoArticuloRouter.patch("/:id", sanitizeTipoArticulo, update);
-tipoArticuloRouter.delete("/:id", remove);
+articleTypeRouter.get("/", controllerArticleType.findAll);
+articleTypeRouter.get("/:id", controllerArticleType.findOne);
+articleTypeRouter.post("/", controllerArticleType.sanitizeArticleTypeInput, controllerArticleType.add);
+articleTypeRouter.put("/:id", controllerArticleType.sanitizeArticleTypeInput, controllerArticleType.update);
+articleTypeRouter.patch("/:id", controllerArticleType.sanitizeArticleTypeInput, controllerArticleType.update);
+articleTypeRouter.delete("/:id", controllerArticleType.remove);

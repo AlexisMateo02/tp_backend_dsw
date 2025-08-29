@@ -1,73 +1,87 @@
-import {Request, Response, NextFunction} from 'express';
-import {ArticleType} from './articleType.entity.js';
-import { ArticleTyperepository } from './articleType.repository.js'; 
+import { Request, Response, NextFunction } from 'express'
+import { orm } from '../shared/dataBase/orm.js'
+import { ArticleType } from './articleType.entity.js'
 
-const repository = new ArticleTyperepository();
+const em = orm.em
 
-
-function sanitizeArticleType(req: Request, res: Response, next: NextFunction) {
- req.body.sanitizedInput = {
+function sanitizeArticleTypeInput(req: Request, res: Response, next: NextFunction) {
+  req.body.sanitizedInput = {
     id: req.body.id,
     name: req.body.name,
     mainUse: req.body.mainUse
     };
     //more checks here
 
-    Object.keys(req.body.sanitizedInput).forEach((key) => {
-        if (typeof req.body.sanitizedInput[key] === "undefined") {
-            delete req.body.sanitizedInput[key];
-        }
-    })
-    next();
-}
-
-
-function findAll (req:Request,res:Response){
-    res.json({data: repository.findAll()});
-}
-
-function findOne(req: Request, res: Response) {
-    const ArticleType = repository.findOne({id: req.params.id});
-    if(!ArticleType) {
-        return res.status(404).json({message: "TipoArticulo not found"});
+  Object.keys(req.body.sanitizedInput).forEach((key) => {
+    if (typeof req.body.sanitizedInput[key] === "undefined") {
+      delete req.body.sanitizedInput[key];
     }
-    res.json({data: ArticleType});
+  })
+  next();
 }
 
-function add( req: Request, res: Response){
-    const inpunt = req.body.sanitizedInput;
-    const ArticleTypeInput = new ArticleType(
-        inpunt.id, 
-        inpunt.name, 
-        inpunt.mainUse
-    );
-
-const articleType = repository.add(ArticleTypeInput);
-return res.status(201).send({message: "TipoArticulo created", data: ArticleType});
-
-}
-
-function update (req: Request, res: Response){ 
-  req.body.sanitizedInput.id = req.params.id
-  const ArticleType = repository.update(req.body.sanitizedInput)
-
-  if (!ArticleType) {
-    return res.status(404).send({ message: 'TipoArticulo not found' })}
-
-  return res.status(200).send({ message: 'TipoArticulo updated successfully', data: ArticleType })
-}
-
-
-function remove(req: Request, res: Response) {
-  const id = req.params.id
-  const ArticleType = repository.delete({ id })
-
-  if (!ArticleType) {
-    res.status(404).send({ message: 'TipoArticulo not found' })
-  } else {
-    res.status(200).send({ message: 'TipoArticulo deleted successfully' })
+async function findAll(req: Request, res: Response) {
+  try{
+    const articleTypes = await em.find(ArticleType, {})
+    res.status(200).json({ message: 'Found all article types', data: articleTypes })
+  }
+  catch (error: any) {
+    res.status(500).json({ message: error.message })
   }
 }
 
+async function findOne(req: Request, res: Response) {
+  try{
+    const id = Number.parseInt(req.params.id)
+    const articleType = await em.findOneOrFail(ArticleType, { id })
+    res.status(200).json({ message: 'Found article type', data: articleType})
+  }
+  catch (error: any) {
+    res.status(500).json({ message: error.message })
+  }
+}
 
-export {sanitizeTipoArticulo, findAll, findOne, add, update, remove};
+async function add(req: Request, res: Response) {
+  try {
+    const articleType = em.create(ArticleType, req.body.sanitizedInput)
+    await em.flush()
+    res.status(201).json({ message: 'Article type created', data: articleType })
+  }
+  catch (error: any) {
+    res.status(500).json({ message: error.message })
+  }
+}
+
+async function update(req: Request, res: Response) {
+  try{
+    const id = Number.parseInt(req.params.id)
+    const articleType = em.getReference(ArticleType, id)
+    em.assign(articleType, req.body.sanitizedInput)
+    await em.flush()
+    res.status(200).json({ message: 'Article type updated' })
+  }
+  catch (error: any){
+    res.status(500).json({ message: error.message })
+  }
+}
+
+async function remove(req: Request, res: Response) {
+  try{
+    const id = Number.parseInt(req.params.id)
+    const articleType = em.getReference(ArticleType, id)
+    await em.removeAndFlush(articleType)
+    res.status(200).json({ message: 'Article type deleted' })
+  }
+  catch (error: any){
+    res.status(500).json({ message: error.message })
+  }
+}
+
+export const controllerArticleType = {
+	sanitizeArticleTypeInput,
+	findAll,
+	findOne,
+	add,
+	update,
+	remove,
+}

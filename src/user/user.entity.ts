@@ -1,8 +1,9 @@
-import { Entity, Property, OneToMany, ManyToOne, Rel, Cascade } from "@mikro-orm/core";
+import { Entity, Property, OneToMany, ManyToOne, Rel, Cascade, Collection } from "@mikro-orm/core";
 import { BaseEntity } from "../shared/dataBase/baseEntity.js";
 import { Localty } from "../localty/localty.entity.js";
 import { Purchase } from "../purchase/purchase.entity.js";
 import { Publishment } from "../publishment/publishment.entity.js";
+import { Rating } from "../rating/rating.entity.js";
 
 @Entity()
 export class User extends BaseEntity{
@@ -34,4 +35,10 @@ export class User extends BaseEntity{
     
     @OneToMany(() => Publishment, (publishment) => publishment.user, {  cascade: [Cascade.ALL], nullable: true })
     publishments!: Rel<Purchase[]>;
+
+    @OneToMany(() => Rating, rating => rating.customer)
+    ratingsGiven = new Collection<Rating>(this);
+
+    @OneToMany(() => Rating, rating => rating.seller)
+    ratingsReceived = new Collection<Rating>(this);
 }

@@ -1,5 +1,4 @@
 import { Entity, Property, OneToMany, Rel, Cascade, ManyToOne, PrimaryKey } from "@mikro-orm/core";
-import { BaseEntity } from "../shared/dataBase/baseEntity.js";
 import { Purchase } from "../purchase/purchase.entity.js";
 
 @Entity()

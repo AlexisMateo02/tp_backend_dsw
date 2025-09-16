@@ -1,5 +1,6 @@
-import { Entity, Property } from "@mikro-orm/core";
+import { Entity, OneToMany, Property, Collection, Cascade } from "@mikro-orm/core";
 import { BaseEntity } from "../shared/dataBase/baseEntity.js";
+import { Product } from "../product/product.entity.js";
 
 @Entity()
 export class KayakType extends BaseEntity{
@@ -26,4 +27,7 @@ export class KayakType extends BaseEntity{
 
     @Property({ type: 'float', nullable: false })
     beam!: number;
+
+    @OneToMany(() => Product, (product) => product.kayakType, { cascade: [Cascade.ALL],nullable: true})
+    products = new Collection<Product>(this)
 }

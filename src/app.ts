@@ -15,15 +15,15 @@ app.use((req, res, next) => {
 
 //! Rutas específicas de la aplicación
 //? Ir agregando las rutas necesarias
-app.use("/api/articleTypes", articleTypeRouter)
+app.use('/api/kayakTypes')
+app.use('/api/articleTypes', articleTypeRouter)
 
 app.use((_, res) => {
-  return res.status(404).send({ message: 'Resource not found' })
+	return res.status(404).send({ message: 'Resource not found' })
 })
 
 await syncSchema() //! Utilizar solo para el desarrollo; nunca en producción
 
 app.listen(3000, () => {
-  console.log('Server running on http://localhost:3000/')
+	console.log('Server running on http://localhost:3000/')
 })
-

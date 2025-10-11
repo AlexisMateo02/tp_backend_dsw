@@ -1,5 +1,7 @@
-### GET ALL 
-### Obtener todas los tipos de artículo
+### ARTICLE TYPES ###
+
+### GET ALL
+### Obtener todos los tipos de artículo
 GET http://localhost:3000/api/articleTypes
 
 ### GET ONE
@@ -46,7 +48,7 @@ Content-Type: application/json
     "mainUse": "Proteger las manos y mejorar el agarre"
 }
 
-### PUT
+### UPDATE
 ### Modificar un tipo de artículo
 PUT http://localhost:3000/api/articleTypes/{{idToUpdate}}
 Content-Type: application/json

@@ -1,0 +1,98 @@
+### KAYAK TYPES ###
+
+### GET ALL
+### Obtener todos los tipos de kayak
+GET http://localhost:3000/api/kayakTypes
+
+### GET ONE
+### Obtener un tipo de kayak específico
+GET http://localhost:3000/api/kayakTypes/{{idToGet}}
+
+### POST
+POST http://localhost:3000/api/kayakTypes
+Content-Type: application/json
+
+{
+    "model": "Explorer 120",
+    "brand": "Perception",
+    "material": "Polietileno",
+    "paddlersQuantity": 1,
+    "maxWeightCapacity": 136,
+    "constructionType": "Moldeado por rotación",
+    "length": 3.66,
+    "beam": 0.76
+}
+
+### POST 2
+# @name createKayakType
+POST http://localhost:3000/api/kayakTypes
+Content-Type: application/json
+
+{
+    "model": "Pungo 125",
+    "brand": "Wilderness Systems",
+    "material": "Polietileno",
+    "paddlersQuantity": 1,
+    "maxWeightCapacity": 159,
+    "constructionType": "Moldeado por inyección",
+    "length": 3.81,
+    "beam": 0.69
+}
+
+### POST 3
+# @name createKayakTypeToUpdate
+POST http://localhost:3000/api/kayakTypes
+Content-Type: application/json
+
+{
+    "model": "Tsunami 145",
+    "brand": "Wilderness Systems",
+    "material": "Polietileno",
+    "paddlersQuantity": 1,
+    "maxWeightCapacity": 147,
+    "constructionType": "Moldeado por rotación",
+    "length": 4.42,
+    "beam": 0.61
+}
+
+### POST 4
+# @name createKayakTypeToDelete
+POST http://localhost:3000/api/kayakTypes
+Content-Type: application/json
+
+{
+    "model": "Loon 126T",
+    "brand": "Old Town",
+    "material": "Polietileno",
+    "paddlersQuantity": 2,
+    "maxWeightCapacity": 227,
+    "constructionType": "Moldeado por rotación",
+    "length": 3.84,
+    "beam": 0.86
+}
+
+### UPDATE
+### Modificar un tipo de kayak
+PUT http://localhost:3000/api/kayakTypes/{{idToUpdate}}
+Content-Type: application/json
+
+{
+    "model": "Tsunami 145",
+    "brand": "Wilderness Systems",
+    "material": "Polietileno de alta densidad",
+    "paddlersQuantity": 1,
+    "maxWeightCapacity": 150,
+    "constructionType": "Moldeado por rotación",
+    "length": 4.42,
+    "beam": 0.61
+}
+
+### DELETE
+### Eliminar un tipo de kayak
+DELETE http://localhost:3000/api/kayakTypes/{{idToDelete}}
+
+
+### IDs
+@idToGet = {{createKayakType.response.body.data.id}}
+@idToUpdate = {{createKayakTypeToUpdate.response.body.data.id}}
+@idToDelete = {{createKayakTypeToDelete.response.body.data.id}}

@@ -13,7 +13,7 @@ async function findAll(req: Request, res: Response) {
 		const kayakTypes = await getAllKayakTypes()
 		return HttpResponse.Ok(res, 'Todos los tipos de kayaks fueron encontrados correctamente', kayakTypes)
 	} catch (err: any) {
-		return HttpResponse.Error(res, 'Fallo al encontrar los tipos de kayaks')
+		return HttpResponse.Error(res, 'Fallo al encontrar tipos de kayaks')
 	}
 }
 

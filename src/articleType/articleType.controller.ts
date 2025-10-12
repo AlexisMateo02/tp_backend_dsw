@@ -13,7 +13,7 @@ async function findAll(req: Request, res: Response) {
 		const articleTypes = await getAllArticleTypes()
 		return HttpResponse.Ok(res, 'Todos los tipos de artículos fueron encontrados correctamente', articleTypes)
 	} catch (err: any) {
-		return HttpResponse.Error(res, 'Fallo al encontrar los tipos de artículos')
+		return HttpResponse.Error(res, 'Fallo al encontrar tipos de artículos')
 	}
 }
 

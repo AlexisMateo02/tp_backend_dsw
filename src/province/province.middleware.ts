@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from 'express'
 import { HttpResponse } from '../shared/errors/errorManager.js'
 
-function sanitizeArticleTypeInput(req: Request, res: Response, next: NextFunction) {
+function sanitizeProvinceInput(req: Request, res: Response, next: NextFunction) {
 	req.body.sanitizedInput = {
 		name: typeof req.body.name === 'string' ? req.body.name.trim().toUpperCase() : undefined,
-		mainUse: typeof req.body.mainUse === 'string' ? req.body.mainUse.trim() : undefined,
+		country: typeof req.body.country === 'string' ? req.body.country.trim().toUpperCase() : undefined,
 	}
 
 	Object.keys(req.body.sanitizedInput).forEach(key => {
@@ -20,7 +20,7 @@ function validateCreateInput(req: Request, res: Response, next: NextFunction) {
 	const input = req.body.sanitizedInput
 
 	if (!input.name) return HttpResponse.BadRequest(res, 'El nombre es requerido')
-	if (!input.mainUse) return HttpResponse.BadRequest(res, 'El uso principal es requerido')
+	if (!input.country) return HttpResponse.BadRequest(res, 'El país es requerido')
 
 	if (input.name.length < 2) {
 		return HttpResponse.BadRequest(res, 'El nombre debe tener al menos 2 caracteres')
@@ -29,11 +29,11 @@ function validateCreateInput(req: Request, res: Response, next: NextFunction) {
 		return HttpResponse.BadRequest(res, 'El nombre no puede exceder los 100 caracteres')
 	}
 
-	if (input.mainUse.length < 3) {
-		return HttpResponse.BadRequest(res, 'El uso principal debe tener al menos 3 caracteres')
+	if (input.country.length < 2) {
+		return HttpResponse.BadRequest(res, 'El país debe tener al menos 2 caracteres')
 	}
-	if (input.mainUse.length > 255) {
-		return HttpResponse.BadRequest(res, 'El uso principal no puede exceder los 255 caracteres')
+	if (input.country.length > 100) {
+		return HttpResponse.BadRequest(res, 'El país no puede exceder los 100 caracteres')
 	}
 
 	next()
@@ -59,19 +59,19 @@ function validateUpdateInput(req: Request, res: Response, next: NextFunction) {
 		}
 	}
 
-	if (input.mainUse !== undefined) {
-		if (!input.mainUse || input.mainUse.trim() === '') {
-			return HttpResponse.BadRequest(res, 'El uso principal no puede estar vacío')
+	if (input.country !== undefined) {
+		if (!input.country || input.country.trim() === '') {
+			return HttpResponse.BadRequest(res, 'El país no puede estar vacío')
 		}
-		if (input.mainUse.length < 3) {
-			return HttpResponse.BadRequest(res, 'El uso principal debe tener al menos 3 caracteres')
+		if (input.country.length < 2) {
+			return HttpResponse.BadRequest(res, 'El país debe tener al menos 2 caracteres')
 		}
-		if (input.mainUse.length > 255) {
-			return HttpResponse.BadRequest(res, 'El uso principal no puede exceder los 255 caracteres')
+		if (input.country.length > 100) {
+			return HttpResponse.BadRequest(res, 'El país no puede exceder los 100 caracteres')
 		}
 	}
 
 	next()
 }
 
-export { sanitizeArticleTypeInput, validateCreateInput, validateUpdateInput }
+export { sanitizeProvinceInput, validateCreateInput, validateUpdateInput }

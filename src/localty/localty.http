@@ -1,62 +1,173 @@
-### GET ALL 
+### LOCALITIES ###
+
+### GET ALL
 ### Obtener todas las localidades
 GET http://localhost:3000/api/localties
 
 ### GET ONE
-### Obtener una localidad
+### Obtener una localidad específica
 GET http://localhost:3000/api/localties/{{zipcodeToGet}}
 
-### POST
-### Crear una nueva localidad
-POST http://localhost:3000/api/localties
-Content-Type: application/json
-
-{
-    "zipcode": "7600",
-    "name": "Mar del Plata",
-    "province": 1
-}
-
-### POST 2
-# @name createLocaltyToGet
-POST http://localhost:3000/api/localties
-Content-Type: application/json
-
-{
-    "zipcode": "1000",
-    "name": "CABA",
-    "province": 1
-}
-
-### POST 3
-# @name createLocaltyToUpdate
+### POST - Rosario (ciudad principal)
 POST http://localhost:3000/api/localties
 Content-Type: application/json
 
 {
     "zipcode": "2000",
-    "name": "Rosario", 
+    "name": "ROSARIO",
     "province": 3
 }
 
-### POST 4
-# @name createLocaltyToDelete
+### POST 2 - Funes
+# @name createLocalityToGet
 POST http://localhost:3000/api/localties
 Content-Type: application/json
 
 {
-    "zipcode": "3000",
-    "name": "Santa Fe",
+    "zipcode": "2132",
+    "name": "FUNES",
     "province": 3
 }
 
-### PUT
+### POST 3 - Roldán
+# @name createLocalityToUpdate
+POST http://localhost:3000/api/localties
+Content-Type: application/json
+
+{
+    "zipcode": "2134",
+    "name": "ROLDÁN",
+    "province": 3
+}
+
+### POST 4 - Granadero Baigorria
+POST http://localhost:3000/api/localties
+Content-Type: application/json
+
+{
+    "zipcode": "2152",
+    "name": "GRANADERO BAIGORRIA",
+    "province": 3
+}
+
+### POST 5 - Capitán Bermúdez
+POST http://localhost:3000/api/localties
+Content-Type: application/json
+
+{
+    "zipcode": "2154",
+    "name": "CAPITÁN BERMÚDEZ",
+    "province": 3
+}
+
+### POST 6 - San Lorenzo
+POST http://localhost:3000/api/localties
+Content-Type: application/json
+
+{
+    "zipcode": "2200",
+    "name": "SAN LORENZO",
+    "province": 3
+}
+
+### POST 7 - Villa Gobernador Gálvez
+POST http://localhost:3000/api/localties
+Content-Type: application/json
+
+{
+    "zipcode": "2124",
+    "name": "VILLA GOBERNADOR GÁLVEZ",
+    "province": 3
+}
+
+### POST 8 - Alvear
+POST http://localhost:3000/api/localties
+Content-Type: application/json
+
+{
+    "zipcode": "2105",
+    "name": "ALVEAR",
+    "province": 3
+}
+
+### POST 9 - Pérez
+POST http://localhost:3000/api/localties
+Content-Type: application/json
+
+{
+    "zipcode": "2121",
+    "name": "PÉREZ",
+    "province": 3
+}
+
+### POST 10 - Zavalla
+# @name createLocalityToDelete
+POST http://localhost:3000/api/localties
+Content-Type: application/json
+
+{
+    "zipcode": "2123",
+    "name": "ZAVALLA",
+    "province": 3
+}
+
+### POST 11 - Arroyo Seco
+POST http://localhost:3000/api/localties
+Content-Type: application/json
+
+{
+    "zipcode": "2128",
+    "name": "ARROYO SECO",
+    "province": 3
+}
+
+### POST 12 - Fray Luis Beltrán
+POST http://localhost:3000/api/localties
+Content-Type: application/json
+
+{
+    "zipcode": "2156",
+    "name": "FRAY LUIS BELTRÁN",
+    "province": 3
+}
+
+### POST 13 - Puerto General San Martín
+POST http://localhost:3000/api/localties
+Content-Type: application/json
+
+{
+    "zipcode": "2202",
+    "name": "PUERTO GENERAL SAN MARTÍN",
+    "province": 3
+}
+
+### POST 14 - Casilda (ciudad cercana)
+POST http://localhost:3000/api/localties
+Content-Type: application/json
+
+{
+    "zipcode": "2170",
+    "name": "CASILDA",
+    "province": 3
+}
+
+### POST 15 - Cañada de Gómez
+POST http://localhost:3000/api/localties
+Content-Type: application/json
+
+{
+    "zipcode": "2500",
+    "name": "CAÑADA DE GÓMEZ",
+    "province": 3
+}
+
+### UPDATE
 ### Modificar una localidad
 PUT http://localhost:3000/api/localties/{{zipcodeToUpdate}}
 Content-Type: application/json
 
 {
-    "name": "Rosario Updated",
+    "name": "ROLDÁN ACTUALIZADO",
     "province": 3
 }
 
@@ -64,7 +175,7 @@ Content-Type: application/json
 ### Borrar una localidad
 DELETE http://localhost:3000/api/localties/{{zipcodeToDelete}}
 
-### IDs
-@zipcodeToGet = {{createLocaltyToGet.response.body.data.zipcode}}
-@zipcodeToUpdate = {{createLocaltyToUpdate.response.body.data.zipcode}}
-@zipcodeToDelete = {{createLocaltyToDelete.response.body.data.zipcode}}
+### ZIPCODES
+@zipcodeToGet = {{createLocalityToGet.response.body.data.zipcode}}
+@zipcodeToUpdate = {{createLocalityToUpdate.response.body.data.zipcode}}
+@zipcodeToDelete = {{createLocalityToDelete.response.body.data.zipcode}}

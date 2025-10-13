@@ -2,7 +2,7 @@ import 'reflect-metadata'
 import express from 'express'
 import { articleTypeRouter } from './articleType/articleType.routes.js'
 import { provinceRouter } from './province/province.routes.js'
-import { localtyRouter } from './localty/localty.routes.js'
+import { localtyrouter } from './localty/localty.routes.js'
 import { productRouter } from './product/product.routes.js'
 import { kayakTypeRouter } from './kayakType/kayakType.routes.js'
 import { pickUpPointRouter } from './pickUpPoint/pickUpPoint.routes.js'
@@ -22,7 +22,7 @@ app.use((req, res, next) => {
 //? Ir agregando las rutas necesarias
 app.use("/api/articleTypes", articleTypeRouter)
 app.use("/api/provinces", provinceRouter)
-app.use("/api/localties", localtyRouter)
+app.use("/api/localties", localtyrouter)
 app.use("/api/kayakTypes", kayakTypeRouter)
 app.use("/api/products", productRouter)
 app.use("/api/pickUpPoints", pickUpPointRouter)

@@ -1,11 +1,15 @@
-import { Router } from "express";
-import { controllerLocalty } from "./localty.controller.js";
+import express from 'express'
+import { controllerLocalty } from './localty.controller.js'
+import { 
+    sanitizeLocaltyInput, 
+    validateCreateInput, 
+    validateUpdateInput 
+} from './localty.middleware.js'
 
-export const localtyRouter = Router();
+export const localtyrouter = express.Router()
 
-localtyRouter.get("/", controllerLocalty.findAll);
-localtyRouter.get("/:zipcode", controllerLocalty.findOne);
-localtyRouter.post("/", controllerLocalty.sanitizeLocaltyInput, controllerLocalty.add);
-localtyRouter.put("/:zipcode", controllerLocalty.sanitizeLocaltyInput, controllerLocalty.update);
-localtyRouter.patch("/:zipcode", controllerLocalty.sanitizeLocaltyInput, controllerLocalty.update);
-localtyRouter.delete("/:zipcode", controllerLocalty.remove);
+localtyrouter.get('/', controllerLocalty.findAll)
+localtyrouter.get('/:zipcode', controllerLocalty.findOne)
+localtyrouter.post('/', sanitizeLocaltyInput, validateCreateInput, controllerLocalty.add)
+localtyrouter.put('/:zipcode', sanitizeLocaltyInput, validateUpdateInput, controllerLocalty.update)
+localtyrouter.delete('/:zipcode', controllerLocalty.remove)

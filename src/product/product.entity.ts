@@ -24,10 +24,6 @@ export class Product extends BaseEntity{
     @ManyToOne(() => KayakType, { nullable: true })
     kayakType?: Rel<KayakType>;
 
-    // 🟡 MANTENER: Relación bidireccional con Publishment
-    @ManyToMany(() => Publishment, publishment => publishment.products, { 
-        nullable: true,
-        owner: false  // Publishment es el owner de la relación
-    })
-    publishments = new Collection<Publishment>(this);
+    @ManyToOne (() => Publishment , { nullable: false })
+    publishment!: Rel<Publishment>;
 }

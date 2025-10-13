@@ -7,17 +7,17 @@ import {
     validateIdParam 
 } from './product.middleware.js'
 
-const productrouter = express.Router()
+export const productRouter = express.Router()
 
 // Rutas principales
-productrouter.get('/', controllerProduct.findAll)
-productrouter.get('/:id', validateIdParam, controllerProduct.findOne)
-productrouter.post('/', sanitizeProductInput, validateCreateInput, controllerProduct.add)
-productrouter.put('/:id', validateIdParam, sanitizeProductInput, validateUpdateInput, controllerProduct.update)
-productrouter.delete('/:id', validateIdParam, controllerProduct.remove)
+productRouter.get('/', controllerProduct.findAll)
+productRouter.get('/:id', validateIdParam, controllerProduct.findOne)
+productRouter.post('/', sanitizeProductInput, validateCreateInput, controllerProduct.add)
+productRouter.put('/:id', validateIdParam, sanitizeProductInput, validateUpdateInput, controllerProduct.update)
+productRouter.delete('/:id', validateIdParam, controllerProduct.remove)
 
 // Rutas adicionales
-productrouter.get('/publishment/:publishmentId', validateIdParam, controllerProduct.findByPublishment)
-productrouter.get('/articletype/:articleTypeId', validateIdParam, controllerProduct.findByArticleType)
-productrouter.get('/kayaktype/:kayakTypeId', validateIdParam, controllerProduct.findByKayakType)
+productRouter.get('/publishment/:publishmentId', validateIdParam, controllerProduct.findByPublishment)
+productRouter.get('/articletype/:articleTypeId', validateIdParam, controllerProduct.findByArticleType)
+productRouter.get('/kayaktype/:kayakTypeId', validateIdParam, controllerProduct.findByKayakType)
 

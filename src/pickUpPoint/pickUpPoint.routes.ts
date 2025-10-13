@@ -7,10 +7,10 @@ import {
     validateIdParam 
 } from './pickUpPoint.middleware.js'
 
-const pickUpPointrouter = express.Router()
+export const pickUpPointRouter = express.Router()
 
-pickUpPointrouter.get('/', controllerPickUpPoint.findAll)
-pickUpPointrouter.get('/:id', validateIdParam, controllerPickUpPoint.findOne)
-pickUpPointrouter.post('/', sanitizePickUpPointInput, validateCreateInput, controllerPickUpPoint.add)
-pickUpPointrouter.put('/:id', validateIdParam, sanitizePickUpPointInput, validateUpdateInput, controllerPickUpPoint.update)
-pickUpPointrouter.delete('/:id', validateIdParam, controllerPickUpPoint.remove)
+pickUpPointRouter.get('/', controllerPickUpPoint.findAll)
+pickUpPointRouter.get('/:id', validateIdParam, controllerPickUpPoint.findOne)
+pickUpPointRouter.post('/', sanitizePickUpPointInput, validateCreateInput, controllerPickUpPoint.add)
+pickUpPointRouter.put('/:id', validateIdParam, sanitizePickUpPointInput, validateUpdateInput, controllerPickUpPoint.update)
+pickUpPointRouter.delete('/:id', validateIdParam, controllerPickUpPoint.remove)

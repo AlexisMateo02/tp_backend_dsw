@@ -1,95 +1,149 @@
-import { Request, Response, NextFunction } from 'express'
-import { orm } from '../shared/dataBase/orm.js'
-import { PickUpPoint } from './pickUpPoint.entity.js'
-import { Localty } from '../localty/localty.entity.js'
-
-const em = orm.em
-
-function sanitizePickUpPointInput(req: Request, res: Response, next: NextFunction) {
-  req.body.sanitizedInput = {
-    id: req.body.id,
-    adressStreet: req.body.adressStreet,
-    adressnumber: req.body.adressnumber,
-    adressFloor: req.body.adressFloor,
-    adressApartment: req.body.adressApartment,
-    tower: req.body.tower,
-    localty: req.body.localty
-  };
-
-  Object.keys(req.body.sanitizedInput).forEach((key) => {
-    if (typeof req.body.sanitizedInput[key] === "undefined") {
-      delete req.body.sanitizedInput[key];
-    }
-  })
-  next();
-}
+import { Request, Response } from 'express'
+import { HttpResponse } from '../shared/errors/errorManager.js'
+import { 
+    getAllPickUpPoints, 
+    getPickUpPointById, 
+    createPickUpPoint, 
+    updatePickUpPoint, 
+    deletePickUpPoint,
+    getPickUpPointsByLocalty,
+    getPickUpPointsByProvince 
+} from './pickUpPoint.service.js'
 
 async function findAll(req: Request, res: Response) {
-  try{
-    const pickUpPoints = await em.find(PickUpPoint, {}, {
-      populate: ['localty', 'publishments']
-    })
-    res.status(200).json({ message: 'Found all pick up points', data: pickUpPoints })
-  }
-  catch (error: any) {
-    res.status(500).json({ message: error.message })
-  }
+    try {
+        const pickUpPoints = await getAllPickUpPoints()
+        return HttpResponse.Ok(res, 'Todos los puntos de recogida fueron encontrados correctamente', pickUpPoints)
+    } catch (err: any) {
+        console.error('Error en findAll pickUpPoints:', err)
+        return HttpResponse.Error(res, 'Fallo al encontrar puntos de recogida')
+    }
 }
 
 async function findOne(req: Request, res: Response) {
-  try{
-    const id = Number.parseInt(req.params.id)
-    const pickUpPoint = await em.findOneOrFail(PickUpPoint, { id }, {
-      populate: ['localty', 'publishments']
-    })
-    res.status(200).json({ message: 'Found pick up point', data: pickUpPoint})
-  }
-  catch (error: any) {
-    res.status(500).json({ message: error.message })
-  }
+    try {
+        const id = Number.parseInt(req.params.id)
+        const pickUpPoint = await getPickUpPointById(id)
+        return HttpResponse.Ok(res, 'Punto de recogida encontrado correctamente', pickUpPoint)
+    } catch (err: any) {
+        console.error('Error en findOne pickUpPoint:', err)
+        
+        if (err.message === 'ID de punto de recogida inválido') {
+            return HttpResponse.BadRequest(res, err.message)
+        }
+        if (err.message.includes('no fue encontrado')) {
+            return HttpResponse.NotFound(res, err.message)
+        }
+        return HttpResponse.Error(res, 'Fallo al encontrar punto de recogida')
+    }
 }
 
 async function add(req: Request, res: Response) {
-  try {
-    const pickUpPoint = em.create(PickUpPoint, req.body.sanitizedInput)
-    await em.flush()
-    res.status(201).json({ message: 'Pick up point created', data: pickUpPoint })
-  }
-  catch (error: any) {
-    res.status(500).json({ message: error.message })
-  }
+    try {
+        const pickUpPointData = req.body.sanitizedInput
+        const pickUpPoint = await createPickUpPoint(pickUpPointData)
+        return HttpResponse.Created(res, 'Punto de recogida creado correctamente', pickUpPoint)
+    } catch (err: any) {
+        console.error('Error en add pickUpPoint:', err)
+        
+        if (err.message.includes('no existe')) {
+            return HttpResponse.NotFound(res, err.message)
+        }
+        if (err.message.includes('ya existe')) {
+            return HttpResponse.DuplicateEntry(res, err.message)
+        }
+        return HttpResponse.Error(res, 'Fallo al crear punto de recogida')
+    }
 }
 
 async function update(req: Request, res: Response) {
-  try{
-    const id = Number.parseInt(req.params.id)
-    const pickUpPoint = em.getReference(PickUpPoint, id)
-    em.assign(pickUpPoint, req.body.sanitizedInput)
-    await em.flush()
-    res.status(200).json({ message: 'Pick up point updated' })
-  }
-  catch (error: any){
-    res.status(500).json({ message: error.message })
-  }
+    try {
+        const id = Number.parseInt(req.params.id)
+        const pickUpPointData = req.body.sanitizedInput
+        const pickUpPoint = await updatePickUpPoint(id, pickUpPointData)
+        return HttpResponse.Ok(res, 'Punto de recogida actualizado correctamente', pickUpPoint)
+    } catch (err: any) {
+        console.error('Error en update pickUpPoint:', err)
+        
+        if (err.message.includes('no existe')) {
+            return HttpResponse.NotFound(res, err.message)
+        }
+        if (err.message === 'ID de punto de recogida inválido') {
+            return HttpResponse.BadRequest(res, err.message)
+        }
+        if (err.message.includes('no fue encontrado')) {
+            return HttpResponse.NotFound(res, err.message)
+        }
+        if (err.message.includes('ya existe')) {
+            return HttpResponse.DuplicateEntry(res, err.message)
+        }
+        return HttpResponse.Error(res, 'Fallo al actualizar punto de recogida')
+    }
 }
 
 async function remove(req: Request, res: Response) {
-  try{
-    const id = Number.parseInt(req.params.id)
-    const pickUpPoint = em.getReference(PickUpPoint, id)
-    await em.removeAndFlush(pickUpPoint)
-    res.status(200).json({ message: 'Pick up point deleted' })
-  }
-  catch (error: any){
-    res.status(500).json({ message: error.message })
-  }
+    try {
+        const id = Number.parseInt(req.params.id)
+        await deletePickUpPoint(id)
+        return HttpResponse.NoContent(res)
+    } catch (err: any) {
+        console.error('Error en remove pickUpPoint:', err)
+        
+        if (err.message === 'ID de punto de recogida inválido') {
+            return HttpResponse.BadRequest(res, err.message)
+        }
+        if (err.message.includes('no fue encontrado')) {
+            return HttpResponse.NotFound(res, err.message)
+        }
+        if (err.message.includes('asociadas a este punto de recogida')) {
+            return HttpResponse.DuplicateEntry(res, err.message)
+        }
+        return HttpResponse.Error(res, 'Fallo al eliminar punto de recogida')
+    }
+}
+
+// Controladores para las funciones adicionales del servicio
+
+async function findByLocalty(req: Request, res: Response) {
+    try {
+        const zipcode = req.params.zipcode
+        const pickUpPoints = await getPickUpPointsByLocalty(zipcode)
+        return HttpResponse.Ok(res, 'Puntos de recogida encontrados correctamente por localidad', pickUpPoints)
+    } catch (err: any) {
+        console.error('Error en findByLocalty:', err)
+        
+        if (err.message.includes('no existe')) {
+            return HttpResponse.NotFound(res, err.message)
+        }
+        if (err.message.includes('El código postal es requerido') || 
+            err.message.includes('debe contener entre 4 y 5 dígitos numéricos')) {
+            return HttpResponse.BadRequest(res, err.message)
+        }
+        return HttpResponse.Error(res, 'Fallo al buscar puntos de recogida por localidad')
+    }
+}
+
+async function findByProvince(req: Request, res: Response) {
+    try {
+        const provinceId = Number.parseInt(req.params.provinceId)
+        const pickUpPoints = await getPickUpPointsByProvince(provinceId)
+        return HttpResponse.Ok(res, 'Puntos de recogida encontrados correctamente por provincia', pickUpPoints)
+    } catch (err: any) {
+        console.error('Error en findByProvince:', err)
+        
+        if (err.message === 'ID de provincia inválido') {
+            return HttpResponse.BadRequest(res, err.message)
+        }
+        return HttpResponse.Error(res, 'Fallo al buscar puntos de recogida por provincia')
+    }
 }
 
 export const controllerPickUpPoint = {
-  sanitizePickUpPointInput,
-  findAll,
-  findOne,
-  add,
-  update,
-  remove,
+    findAll,
+    findOne,
+    add,
+    update,
+    remove,
+    findByLocalty,
+    findByProvince
 }

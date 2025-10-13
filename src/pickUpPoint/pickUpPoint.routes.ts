@@ -1,11 +1,16 @@
-import { Router } from "express";
-import { controllerPickUpPoint } from "./pickUpPoint.controller.js";
+import express from 'express'
+import { controllerPickUpPoint } from './pickUpPoint.controller.js'
+import { 
+    sanitizePickUpPointInput, 
+    validateCreateInput, 
+    validateUpdateInput,
+    validateIdParam 
+} from './pickUpPoint.middleware.js'
 
-export const pickUpPointRouter = Router();
+const pickUpPointrouter = express.Router()
 
-pickUpPointRouter.get("/", controllerPickUpPoint.findAll);
-pickUpPointRouter.get("/:id", controllerPickUpPoint.findOne);
-pickUpPointRouter.post("/", controllerPickUpPoint.sanitizePickUpPointInput, controllerPickUpPoint.add);
-pickUpPointRouter.put("/:id", controllerPickUpPoint.sanitizePickUpPointInput, controllerPickUpPoint.update);
-pickUpPointRouter.patch("/:id", controllerPickUpPoint.sanitizePickUpPointInput, controllerPickUpPoint.update);
-pickUpPointRouter.delete("/:id", controllerPickUpPoint.remove);
+pickUpPointrouter.get('/', controllerPickUpPoint.findAll)
+pickUpPointrouter.get('/:id', validateIdParam, controllerPickUpPoint.findOne)
+pickUpPointrouter.post('/', sanitizePickUpPointInput, validateCreateInput, controllerPickUpPoint.add)
+pickUpPointrouter.put('/:id', validateIdParam, sanitizePickUpPointInput, validateUpdateInput, controllerPickUpPoint.update)
+pickUpPointrouter.delete('/:id', validateIdParam, controllerPickUpPoint.remove)

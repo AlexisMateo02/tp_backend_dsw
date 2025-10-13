@@ -1,12 +1,11 @@
-import { Router } from "express";
-import { controllerKayakType } from "./kayakType.controller.js";
+import { Router } from 'express'
+import { controllerKayakType } from './kayakType.controller.js'
+import { sanitizeKayakTypeInput, validateCreateInput, validateUpdateInput } from './kayakType.middleware.js'
 
-export const kayakTypeRouter = Router();
+export const kayakTypeRouter = Router()
 
-kayakTypeRouter.get("/", controllerKayakType.findAll);
-kayakTypeRouter.get("/:id", controllerKayakType.findOne);
-kayakTypeRouter.get("/:id/product", controllerKayakType.getProduct);  
-kayakTypeRouter.post("/", controllerKayakType.sanitizeKayakTypeInput, controllerKayakType.add);
-kayakTypeRouter.put("/:id", controllerKayakType.sanitizeKayakTypeInput, controllerKayakType.update);
-kayakTypeRouter.patch("/:id", controllerKayakType.sanitizeKayakTypeInput, controllerKayakType.update);
-kayakTypeRouter.delete("/:id", controllerKayakType.remove);
+kayakTypeRouter.get('/', controllerKayakType.findAll)
+kayakTypeRouter.get('/:id', controllerKayakType.findOne)
+kayakTypeRouter.post('/', sanitizeKayakTypeInput, validateCreateInput, controllerKayakType.add)
+kayakTypeRouter.put('/:id', sanitizeKayakTypeInput, validateUpdateInput, controllerKayakType.update)
+kayakTypeRouter.delete('/:id', controllerKayakType.remove)

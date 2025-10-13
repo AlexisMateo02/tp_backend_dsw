@@ -1,13 +1,15 @@
-### GET ALL 
+### PROVINCES ###
+
+### GET ALL
 ### Obtener todas las provincias
 GET http://localhost:3000/api/provinces
 
 ### GET ONE
-### Obtener una provincia
+### Obtener una provincia específica
 GET http://localhost:3000/api/provinces/{{idToGet}}
 
 ### POST
-### Crear una nueva provincia
+### Crear una nueva provincia (Buenos Aires)
 POST http://localhost:3000/api/provinces
 Content-Type: application/json
 
@@ -32,12 +34,11 @@ POST http://localhost:3000/api/provinces
 Content-Type: application/json
 
 {
-    "name": "Santa Fe", 
+    "name": "Santa",
     "country": "Argentina"
 }
 
 ### POST 4
-# @name createProvinceToDelete
 POST http://localhost:3000/api/provinces
 Content-Type: application/json
 
@@ -46,7 +47,63 @@ Content-Type: application/json
     "country": "Argentina"
 }
 
-### PUT
+
+### POST 5
+POST http://localhost:3000/api/provinces
+Content-Type: application/json
+
+{
+    "name": "Misiones",
+    "country": "Argentina"
+}
+
+### POST 6
+POST http://localhost:3000/api/provinces
+Content-Type: application/json
+
+{
+    "name": "Tucumán",
+    "country": "Argentina"
+}
+
+### POST 7
+POST http://localhost:3000/api/provinces
+Content-Type: application/json
+
+{
+    "name": "Salta",
+    "country": "Argentina"
+}
+
+### POST 8
+POST http://localhost:3000/api/provinces
+Content-Type: application/json
+
+{
+    "name": "Entre Ríos",
+    "country": "Argentina"
+}
+
+### POST 9
+POST http://localhost:3000/api/provinces
+Content-Type: application/json
+
+{
+    "name": "Chubut",
+    "country": "Argentina"
+}
+
+### POST 10 - Provincia de Uruguay
+# @name createProvinceToDelete
+POST http://localhost:3000/api/provinces
+Content-Type: application/json
+
+{
+    "name": "Montevideo",
+    "country": "Uruguay"
+}
+
+### UPDATE
 ### Modificar una provincia
 PUT http://localhost:3000/api/provinces/{{idToUpdate}}
 Content-Type: application/json

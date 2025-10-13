@@ -1,24 +1,25 @@
-import { Entity, Property, PrimaryKey, ManyToOne, Rel, Cascade, OneToMany, Collection  } from "@mikro-orm/core";
-import { Province } from "../province/province.entity.js";
-import { User } from "../user/user.entity.js";
-import { PickUpPoint } from "../pickUpPoint/pickUpPoint.entity.js";
+import { Entity, Property, PrimaryKey, ManyToOne, Rel, Cascade, OneToMany, Collection } from '@mikro-orm/core'
+import { Province } from '../province/province.entity.js'
+import { User } from '../user/user.entity.js'
+import { PickUpPoint } from '../pickUpPoint/pickUpPoint.entity.js'
 
 @Entity()
-export class Localty{
-    @PrimaryKey()
-    zipcode!: string;
+export class Localty {
+	@PrimaryKey()
+	zipcode!: string
 
-    @Property({ nullable: false, unique: true })
-    name!: string;
+	@Property({ nullable: false, unique: true })
+	name!: string
 
-    @ManyToOne (() => Province, { nullable: false })
-    province!: Rel<Province>;
+	@ManyToOne(() => Province, { nullable: false })
+	province!: Rel<Province>
 
-    @OneToMany(() => User, (user) => user.localty, {
-    cascade: [Cascade.ALL], nullable: true
-  })
-    users = new Collection<User>(this)
+	@OneToMany(() => User, user => user.localty, {
+		cascade: [Cascade.ALL],
+		nullable: true,
+	})
+	users = new Collection<User>(this)
 
-    @OneToMany(() => PickUpPoint, (pickUpPoint) => pickUpPoint.localty, {cascade: [Cascade.ALL], nullable: true})
-    pickUpPoints = new Collection<PickUpPoint>(this)
+	@OneToMany(() => PickUpPoint, pickUpPoint => pickUpPoint.localty, { cascade: [Cascade.ALL], nullable: true })
+	pickUpPoints = new Collection<PickUpPoint>(this)
 }

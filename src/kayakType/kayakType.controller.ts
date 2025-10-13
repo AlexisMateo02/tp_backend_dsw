@@ -1,149 +1,95 @@
-import { Request, Response, NextFunction } from 'express'
-import { orm } from '../shared/dataBase/orm.js'
-import { KayakType } from './kayakType.entity.js'
 
-const em = orm.em
-
-function sanitizeKayakTypeInput(req: Request, res: Response, next: NextFunction) {
-  req.body.sanitizedInput = {
-    id: req.body.id,
-    model: req.body.model,
-    brand: req.body.brand,
-    material: req.body.material,
-    paddlersQuantity: req.body.paddlersQuantity,
-    maxWeightCapacity: req.body.maxWeightCapacity,
-    constructionType: req.body.constructionType,
-    length: req.body.length,
-    beam: req.body.beam
-  };
-
-  Object.keys(req.body.sanitizedInput).forEach((key) => {
-    if (typeof req.body.sanitizedInput[key] === "undefined") {
-      delete req.body.sanitizedInput[key];
-    }
-  })
-  next();
-}
+import { Request, Response } from 'express'
+import { HttpResponse } from '../shared/errors/errorManager.js'
+import {
+	getAllKayakTypes,
+	getKayakTypeById,
+	createKayakType,
+	updateKayakType,
+	deleteKayakType,
+} from './kayakType.service.js'
 
 async function findAll(req: Request, res: Response) {
-  try{
-    const kayakTypes = await em.find(KayakType, {}, {
-      populate: ['product']  // ← Poblar el producto asociado
-    })
-    
-    res.status(200).json({ 
-      message: 'Found all kayak types', 
-      data: kayakTypes 
-    })
-  }
-  catch (error: any) {
-    res.status(500).json({ message: error.message })
-  }
+	try {
+		const kayakTypes = await getAllKayakTypes()
+		return HttpResponse.Ok(res, 'Todos los tipos de kayaks fueron encontrados correctamente', kayakTypes)
+	} catch (err: any) {
+		return HttpResponse.Error(res, 'Fallo al encontrar tipos de kayaks')
+	}
 }
 
 async function findOne(req: Request, res: Response) {
-  try{
-    const id = Number.parseInt(req.params.id)
-    const kayakType = await em.findOneOrFail(KayakType, { id }, {
-      populate: ['product']
-    })
-    
-    res.status(200).json({ 
-      message: 'Found kayak type', 
-      data: kayakType
-    })
-  }
-  catch (error: any) {
-    res.status(500).json({ message: error.message })
-  }
+	try {
+		const id = Number.parseInt(req.params.id)
+		const kayakType = await getKayakTypeById(id)
+		return HttpResponse.Ok(res, 'Tipo de kayak encontrado correctamente', kayakType)
+	} catch (err: any) {
+		if (err.message === 'ID de tipo de kayak inválido') {
+			return HttpResponse.BadRequest(res, err.message)
+		}
+		if (err.message.includes('no fue encontrado')) {
+			return HttpResponse.NotFound(res, err.message)
+		}
+		return HttpResponse.Error(res, 'Fallo al encontrar tipo de kayak')
+	}
 }
 
 async function add(req: Request, res: Response) {
-  try {
-    // 🟡 CAMBIO: Verificar si ya existe un producto con este kayakType
-    const kayakType = em.create(KayakType, req.body.sanitizedInput)
-    await em.flush()
-    
-    res.status(201).json({ 
-      message: 'Kayak type created', 
-      data: kayakType 
-    })
-  }
-  catch (error: any) {
-    res.status(500).json({ message: error.message })
-  }
+	try {
+		const kayakTypeData = req.body.sanitizedInput
+		const kayakType = await createKayakType(kayakTypeData)
+		return HttpResponse.Created(res, 'Tipo de kayak creado correctamente', kayakType)
+	} catch (err: any) {
+		if (err.message.includes('ya existe')) {
+			return HttpResponse.DuplicateEntry(res, err.message)
+		}
+		return HttpResponse.Error(res, 'Fallo al crear tipo de kayak')
+	}
 }
 
 async function update(req: Request, res: Response) {
-  try{
-    const id = Number.parseInt(req.params.id)
-    const kayakType = em.getReference(KayakType, id)
-    em.assign(kayakType, req.body.sanitizedInput)
-    await em.flush()
-    res.status(200).json({ message: 'Kayak type updated' })
-  }
-  catch (error: any){
-    res.status(500).json({ message: error.message })
-  }
+	try {
+		const id = Number.parseInt(req.params.id)
+		const kayakTypeData = req.body.sanitizedInput
+		const kayakType = await updateKayakType(id, kayakTypeData)
+		return HttpResponse.Ok(res, 'Tipo de kayak actualizado correctamente', kayakType)
+	} catch (err: any) {
+		if (err.message.includes('ya existe')) {
+			return HttpResponse.DuplicateEntry(res, err.message)
+		}
+		if (err.message === 'ID de tipo de kayak inválido') {
+			return HttpResponse.BadRequest(res, err.message)
+		}
+		if (err.message.includes('no fue encontrado')) {
+			return HttpResponse.NotFound(res, err.message)
+		}
+		return HttpResponse.Error(res, 'Fallo al actualizar tipo de kayak')
+	}
 }
 
 async function remove(req: Request, res: Response) {
-  try{
-    const id = Number.parseInt(req.params.id)
-    const kayakType = await em.findOne(KayakType, { id }, {
-      populate: ['product']
-    })
-    
-    if (!kayakType) {
-      return res.status(404).json({ message: 'Kayak type not found' })
-    }
-    
-    // 🟡 CAMBIO: Prevenir borrado si tiene un producto asociado
-    if (kayakType.product) {
-      return res.status(400).json({ 
-        message: 'Cannot delete kayak type with associated product',
-        productId: kayakType.product.id
-      })
-    }
-    
-    await em.removeAndFlush(kayakType)
-    res.status(200).json({ message: 'Kayak type deleted' })
-  }
-  catch (error: any){
-    res.status(500).json({ message: error.message })
-  }
-}
-
-// 🟡 NUEVA FUNCIÓN: Obtener el producto asociado a un kayakType
-async function getProduct(req: Request, res: Response) {
-  try{
-    const id = Number.parseInt(req.params.id)
-    const kayakType = await em.findOneOrFail(KayakType, { id }, {
-      populate: ['product']
-    })
-    
-    if (!kayakType.product) {
-      return res.status(404).json({ 
-        message: 'No product associated with this kayak type' 
-      })
-    }
-    
-    res.status(200).json({ 
-      message: 'Product found for kayak type',
-      data: kayakType.product 
-    })
-  }
-  catch (error: any) {
-    res.status(500).json({ message: error.message })
-  }
+	try {
+		const id = Number.parseInt(req.params.id)
+		await deleteKayakType(id)
+		return HttpResponse.NoContent(res)
+	} catch (err: any) {
+		if (err.message === 'ID de tipo de kayak inválido') {
+			return HttpResponse.BadRequest(res, err.message)
+		}
+		if (err.message.includes('no fue encontrado')) {
+			return HttpResponse.NotFound(res, err.message)
+		}
+		if (err.message.includes('categoriza')) {
+			return HttpResponse.DuplicateEntry(res, err.message)
+		}
+		return HttpResponse.Error(res, 'Fallo al eliminar tipo de kayak')
+	}
 }
 
 export const controllerKayakType = {
-  sanitizeKayakTypeInput,
-  findAll,
-  findOne,
-  add,
-  update,
-  remove,
-  getProduct  // 🟡 NUEVA FUNCIÓN
+	findAll,
+	findOne,
+	add,
+	update,
+	remove,
 }

@@ -1,100 +1,98 @@
-### GET ALL 
+### KAYAK TYPES ###
+
+### GET ALL
 ### Obtener todos los tipos de kayak
 GET http://localhost:3000/api/kayakTypes
 
 ### GET ONE
-### Obtener un tipo de kayak
-GET http://localhost:3000/api/kayakTypes/{{idToObtener}}
-
-
-### Obtener el producto de un kayakType específico
-GET http://localhost:3000/api/kayakTypes/1/product
+### Obtener un tipo de kayak específico
+GET http://localhost:3000/api/kayakTypes/{{idToGet}}
 
 ### POST
-### Crear un nuevo tipo de kayak
 POST http://localhost:3000/api/kayakTypes
 Content-Type: application/json
 
 {
-    "model": "Explorador",
-    "brand": "Kayak Océano",
-    "material": "Polietileno",
-    "paddlersQuantity": 2,
-    "maxWeightCapacity": 250,
-    "constructionType": "Moldeado rotacional",
-    "length": 4.2,
-    "beam": 0.8
-}
-
-### POST 2
-# @name crearKayakTypeParaObtener
-POST http://localhost:3000/api/kayakTypes
-Content-Type: application/json
-
-{
-    "model": "Pungo",
-    "brand": "Sistemas Wilderness",
+    "model": "Explorer 120",
+    "brand": "Perception",
     "material": "Polietileno",
     "paddlersQuantity": 1,
     "maxWeightCapacity": 136,
-    "constructionType": "Moldeado rotacional",
-    "length": 3.7,
-    "beam": 0.7
+    "constructionType": "Moldeado por rotación",
+    "length": 3.66,
+    "beam": 0.76
+}
+
+### POST 2
+# @name createKayakType
+POST http://localhost:3000/api/kayakTypes
+Content-Type: application/json
+
+{
+    "model": "Pungo 125",
+    "brand": "Wilderness Systems",
+    "material": "Polietileno",
+    "paddlersQuantity": 1,
+    "maxWeightCapacity": 159,
+    "constructionType": "Moldeado por inyección",
+    "length": 3.81,
+    "beam": 0.69
 }
 
 ### POST 3
-# @name crearKayakTypeParaActualizar
+# @name createKayakTypeToUpdate
 POST http://localhost:3000/api/kayakTypes
 Content-Type: application/json
 
 {
-    "model": "Tempestad",
-    "brand": "Sistemas Wilderness",
-    "material": "Fibra de vidrio",
+    "model": "Tsunami 145",
+    "brand": "Wilderness Systems",
+    "material": "Polietileno",
     "paddlersQuantity": 1,
-    "maxWeightCapacity": 120,
-    "constructionType": "Compuesto",
-    "length": 5.2,
-    "beam": 0.6
+    "maxWeightCapacity": 147,
+    "constructionType": "Moldeado por rotación",
+    "length": 4.42,
+    "beam": 0.61
 }
 
 ### POST 4
-# @name crearKayakTypeParaBorrar
+# @name createKayakTypeToDelete
 POST http://localhost:3000/api/kayakTypes
 Content-Type: application/json
 
 {
-    "model": "Tándem",
-    "brand": "Percepción",
+    "model": "Loon 126T",
+    "brand": "Old Town",
     "material": "Polietileno",
     "paddlersQuantity": 2,
-    "maxWeightCapacity": 230,
-    "constructionType": "Moldeado rotacional",
-    "length": 4.5,
-    "beam": 0.8
+    "maxWeightCapacity": 227,
+    "constructionType": "Moldeado por rotación",
+    "length": 3.84,
+    "beam": 0.86
 }
 
-### PUT
+### UPDATE
 ### Modificar un tipo de kayak
-PUT http://localhost:3000/api/kayakTypes/{{idParaActualizar}}
+PUT http://localhost:3000/api/kayakTypes/{{idToUpdate}}
 Content-Type: application/json
 
 {
-    "model": "Tempestad Pro",
-    "brand": "Sistemas Wilderness",
-    "material": "Fibra de carbono",
+    "model": "Tsunami 145",
+    "brand": "Wilderness Systems",
+    "material": "Polietileno de alta densidad",
     "paddlersQuantity": 1,
-    "maxWeightCapacity": 125,
-    "constructionType": "Compuesto",
-    "length": 5.2,
-    "beam": 0.6
+    "maxWeightCapacity": 150,
+    "constructionType": "Moldeado por rotación",
+    "length": 4.42,
+    "beam": 0.61
 }
 
 ### DELETE
-### Borrar un tipo de kayak
-DELETE http://localhost:3000/api/kayakTypes/{{idParaBorrar}}
+### Eliminar un tipo de kayak
+DELETE http://localhost:3000/api/kayakTypes/{{idToDelete}}
+
 
 ### IDs
-@idToObtener = {{crearKayakTypeParaObtener.response.body.data.id}}
-@idParaActualizar = {{crearKayakTypeParaActualizar.response.body.data.id}}
-@idParaBorrar = {{crearKayakTypeParaBorrar.response.body.data.id}}
+@idToGet = {{createKayakType.response.body.data.id}}
+@idToUpdate = {{createKayakTypeToUpdate.response.body.data.id}}
+@idToDelete = {{createKayakTypeToDelete.response.body.data.id}}

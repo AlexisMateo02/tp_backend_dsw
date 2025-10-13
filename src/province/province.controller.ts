@@ -1,91 +1,88 @@
-import { Request, Response, NextFunction } from 'express'
-import { orm } from '../shared/dataBase/orm.js'
-import { Province } from './province.entity.js'
-
-const em = orm.em
-
-function sanitizeProvinceInput(req: Request, res: Response, next: NextFunction) {
-  req.body.sanitizedInput = {
-    id: req.body.id,
-    name: req.body.name,
-    country: req.body.country
-  };
-  //more checks here
-
-  Object.keys(req.body.sanitizedInput).forEach((key) => {
-    if (typeof req.body.sanitizedInput[key] === "undefined") {
-      delete req.body.sanitizedInput[key];
-    }
-  })
-  next();
-}
+import { Request, Response } from 'express'
+import { HttpResponse } from '../shared/errors/errorManager.js'
+import { getAllProvinces, getProvinceById, createProvince, updateProvince, deleteProvince } from './province.service.js'
 
 async function findAll(req: Request, res: Response) {
-  try{
-    const provinces = await em.find(Province, {}, {
-      populate: ['localties']  // ← ÚNICO CAMBIO: poblar localidades
-    })
-    res.status(200).json({ message: 'Found all provinces', data: provinces })
-  }
-  catch (error: any) {
-    res.status(500).json({ message: error.message })
-  }
+	try {
+		const provinces = await getAllProvinces()
+		return HttpResponse.Ok(res, 'Todas las provincias fueron encontradas correctamente', provinces)
+	} catch (err: any) {
+		return HttpResponse.Error(res, 'Fallo al encontrar provincias')
+	}
 }
 
 async function findOne(req: Request, res: Response) {
-  try{
-    const id = Number.parseInt(req.params.id)
-    const province = await em.findOneOrFail(Province, { id }, {
-      populate: ['localties']  // ← ÚNICO CAMBIO: poblar localidades
-    })
-    res.status(200).json({ message: 'Found province', data: province})
-  }
-  catch (error: any) {
-    res.status(500).json({ message: error.message })
-  }
+	try {
+		const id = Number.parseInt(req.params.id)
+		const province = await getProvinceById(id)
+		return HttpResponse.Ok(res, 'Provincia encontrada correctamente', province)
+	} catch (err: any) {
+		if (err.message === 'ID de provincia inválido') {
+			return HttpResponse.BadRequest(res, err.message)
+		}
+		if (err.message.includes('no fue encontrada')) {
+			return HttpResponse.NotFound(res, err.message)
+		}
+		return HttpResponse.Error(res, 'Fallo al encontrar provincia')
+	}
 }
 
 async function add(req: Request, res: Response) {
-  try {
-    const province = em.create(Province, req.body.sanitizedInput)
-    await em.flush()
-    res.status(201).json({ message: 'Province created', data: province })
-  }
-  catch (error: any) {
-    res.status(500).json({ message: error.message })
-  }
+	try {
+		const provinceData = req.body.sanitizedInput
+		const province = await createProvince(provinceData)
+		return HttpResponse.Created(res, 'Provincia creada correctamente', province)
+	} catch (err: any) {
+		if (err.message.includes('ya existe')) {
+			return HttpResponse.DuplicateEntry(res, err.message)
+		}
+		return HttpResponse.Error(res, 'Fallo al crear provincia')
+	}
 }
 
 async function update(req: Request, res: Response) {
-  try{
-    const id = Number.parseInt(req.params.id)
-    const province = em.getReference(Province, id)
-    em.assign(province, req.body.sanitizedInput)
-    await em.flush()
-    res.status(200).json({ message: 'Province updated' })
-  }
-  catch (error: any){
-    res.status(500).json({ message: error.message })
-  }
+	try {
+		const id = Number.parseInt(req.params.id)
+		const provinceData = req.body.sanitizedInput
+		const province = await updateProvince(id, provinceData)
+		return HttpResponse.Ok(res, 'Provincia actualizada correctamente', province)
+	} catch (err: any) {
+		if (err.message.includes('ya existe')) {
+			return HttpResponse.DuplicateEntry(res, err.message)
+		}
+		if (err.message === 'ID de provincia inválido') {
+			return HttpResponse.BadRequest(res, err.message)
+		}
+		if (err.message.includes('no fue encontrado')) {
+			return HttpResponse.NotFound(res, err.message)
+		}
+		return HttpResponse.Error(res, 'Fallo al actualizar provincia')
+	}
 }
 
 async function remove(req: Request, res: Response) {
-  try{
-    const id = Number.parseInt(req.params.id)
-    const province = em.getReference(Province, id)
-    await em.removeAndFlush(province)
-    res.status(200).json({ message: 'Province deleted' })
-  }
-  catch (error: any){
-    res.status(500).json({ message: error.message })
-  }
+	try {
+		const id = Number.parseInt(req.params.id)
+		await deleteProvince(id)
+		return HttpResponse.NoContent(res)
+	} catch (err: any) {
+		if (err.message === 'ID de provincia inválido') {
+			return HttpResponse.BadRequest(res, err.message)
+		}
+		if (err.message.includes('no fue encontrada')) {
+			return HttpResponse.NotFound(res, err.message)
+		}
+		if (err.message.includes('se ubican')) {
+			return HttpResponse.DuplicateEntry(res, err.message)
+		}
+		return HttpResponse.Error(res, 'Fallo al eliminar provincia')
+	}
 }
 
 export const controllerProvince = {
-  sanitizeProvinceInput,
-  findAll,
-  findOne,
-  add,
-  update,
-  remove,
+	findAll,
+	findOne,
+	add,
+	update,
+	remove,
 }

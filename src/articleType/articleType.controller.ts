@@ -1,84 +1,91 @@
-import { Request, Response, NextFunction } from 'express'
-import { orm } from '../shared/dataBase/orm.js'
-import { ArticleType } from './articleType.entity.js'
-
-const em = orm.em
-
-function sanitizeArticleTypeInput(req: Request, res: Response, next: NextFunction) {
-  req.body.sanitizedInput = {
-    id: req.body.id,
-    name: req.body.name,
-    mainUse: req.body.mainUse
-    };
-    //more checks here
-
-  Object.keys(req.body.sanitizedInput).forEach((key) => {
-    if (typeof req.body.sanitizedInput[key] === "undefined") {
-      delete req.body.sanitizedInput[key];
-    }
-  })
-  next();
-}
+import { Request, Response } from 'express'
+import { HttpResponse } from '../shared/errors/errorManager.js'
+import {
+	getAllArticleTypes,
+	getArticleTypeById,
+	createArticleType,
+	updateArticleType,
+	deleteArticleType,
+} from './articleType.service.js'
 
 async function findAll(req: Request, res: Response) {
-  try{
-    const articleTypes = await em.find(ArticleType, {})
-    res.status(200).json({ message: 'Found all article types', data: articleTypes })
-  }
-  catch (error: any) {
-    res.status(500).json({ message: error.message })
-  }
+	try {
+		const articleTypes = await getAllArticleTypes()
+		return HttpResponse.Ok(res, 'Todos los tipos de artículos fueron encontrados correctamente', articleTypes)
+	} catch (err: any) {
+		return HttpResponse.Error(res, 'Fallo al encontrar tipos de artículos')
+	}
 }
 
 async function findOne(req: Request, res: Response) {
-  try{
-    const id = Number.parseInt(req.params.id)
-    const articleType = await em.findOneOrFail(ArticleType, { id })
-    res.status(200).json({ message: 'Found article type', data: articleType})
-  }
-  catch (error: any) {
-    res.status(500).json({ message: error.message })
-  }
+	try {
+		const id = Number.parseInt(req.params.id)
+		const articleType = await getArticleTypeById(id)
+		return HttpResponse.Ok(res, 'Tipo de artículo encontrado correctamente', articleType)
+	} catch (err: any) {
+		if (err.message === 'ID de tipo de artículo inválido') {
+			return HttpResponse.BadRequest(res, err.message)
+		}
+		if (err.message.includes('no fue encontrado')) {
+			return HttpResponse.NotFound(res, err.message)
+		}
+		return HttpResponse.Error(res, 'Fallo al encontrar tipo de artículo')
+	}
 }
 
 async function add(req: Request, res: Response) {
-  try {
-    const articleType = em.create(ArticleType, req.body.sanitizedInput)
-    await em.flush()
-    res.status(201).json({ message: 'Article type created', data: articleType })
-  }
-  catch (error: any) {
-    res.status(500).json({ message: error.message })
-  }
+	try {
+		const articleTypeData = req.body.sanitizedInput
+		const articleType = await createArticleType(articleTypeData)
+		return HttpResponse.Created(res, 'Tipo de artículo creado correctamente', articleType)
+	} catch (err: any) {
+		if (err.message.includes('ya existe')) {
+			return HttpResponse.DuplicateEntry(res, err.message)
+		}
+		return HttpResponse.Error(res, 'Fallo al crear tipo de artículo')
+	}
 }
 
 async function update(req: Request, res: Response) {
-  try{
-    const id = Number.parseInt(req.params.id)
-    const articleType = em.getReference(ArticleType, id)
-    em.assign(articleType, req.body.sanitizedInput)
-    await em.flush()
-    res.status(200).json({ message: 'Article type updated' })
-  }
-  catch (error: any){
-    res.status(500).json({ message: error.message })
-  }
+	try {
+		const id = Number.parseInt(req.params.id)
+		const articleTypeData = req.body.sanitizedInput
+		const articleType = await updateArticleType(id, articleTypeData)
+		return HttpResponse.Ok(res, 'Tipo de artículo actualizado correctamente', articleType)
+	} catch (err: any) {
+		if (err.message.includes('ya existe')) {
+			return HttpResponse.DuplicateEntry(res, err.message)
+		}
+		if (err.message === 'ID de tipo de artículo inválido') {
+			return HttpResponse.BadRequest(res, err.message)
+		}
+		if (err.message.includes('no fue encontrado')) {
+			return HttpResponse.NotFound(res, err.message)
+		}
+		return HttpResponse.Error(res, 'Fallo al actualizar tipo de artículo')
+	}
 }
 
 async function remove(req: Request, res: Response) {
-  try{
-    const id = Number.parseInt(req.params.id)
-    const articleType = em.getReference(ArticleType, id)
-    await em.removeAndFlush(articleType)
-    res.status(200).json({ message: 'Article type deleted' })
-  }
-  catch (error: any){
-    res.status(500).json({ message: error.message })
-  }
+	try {
+		const id = Number.parseInt(req.params.id)
+		await deleteArticleType(id)
+		return HttpResponse.NoContent(res)
+	} catch (err: any) {
+		if (err.message === 'ID de tipo de artículo inválido') {
+			return HttpResponse.BadRequest(res, err.message)
+		}
+		if (err.message.includes('no fue encontrado')) {
+			return HttpResponse.NotFound(res, err.message)
+		}
+		if (err.message.includes('categoriza')) {
+			return HttpResponse.DuplicateEntry(res, err.message)
+		}
+		return HttpResponse.Error(res, 'Fallo al eliminar tipo de artículo')
+	}
 }
 
 export const controllerArticleType = {
-	sanitizeArticleTypeInput,
 	findAll,
 	findOne,
 	add,

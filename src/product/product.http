@@ -1,73 +1,146 @@
-### GET ALL 
+### PRODUCTS ###
+
+### GET ALL
 ### Obtener todos los productos
 GET http://localhost:3000/api/products
 
+### GET BY PUBLISHMENT
+### Obtener productos por publicación
+GET http://localhost:3000/api/products/publishment/1
+
+### GET BY ARTICLE TYPE
+### Obtener productos por tipo de artículo
+GET http://localhost:3000/api/products/articletype/1
+
+### GET BY KAYAK TYPE
+### Obtener productos por tipo de kayak
+GET http://localhost:3000/api/products/kayaktype/1
+
 ### GET ONE
-### Obtener un producto
+### Obtener un producto específico
 GET http://localhost:3000/api/products/{{idToGet}}
 
-### POST
-### Crear un nuevo producto (Artículo)
+### POST - Producto con tipo de artículo
 POST http://localhost:3000/api/products
 Content-Type: application/json
 
 {
-    "name": "Chaleco Salvavidas Pro",
-    "description": "Chaleco de alta flotabilidad",
-    "price": 150,
-    "quantity": 10,
-    "articleType": 1
+    "name": "Kayak Inflable Advanced",
+    "description": "Kayak inflable de alta calidad para aguas tranquilas, incluye remos y bomba de aire. Perfecto para principiantes y uso recreativo.",
+    "price": 299.99,
+    "quantity": 5,
+    "articleType": 1,
+    "publishment": 1
 }
 
-### POST 2
-### Crear un nuevo producto (Kayak)
+### POST 2 - Producto con tipo de kayak
 # @name createProductToGet
 POST http://localhost:3000/api/products
 Content-Type: application/json
 
 {
-    "name": "Kayak Explorer",
-    "description": "Kayak recreativo para 2 personas",
-    "price": 1200,
-    "quantity": 5,
-    "kayakType": 1
+    "name": "Kayak de Mar Profesional",
+    "description": "Kayak diseñado específicamente para aguas abiertas y mar, con compartimentos estancos y quilla direccional para mejor manejo en condiciones adversas.",
+    "price": 899.99,
+    "quantity": 2,
+    "kayakType": 1,
+    "publishment": 1
 }
 
-### POST 3
+### POST 3 - Producto para actualizar
 # @name createProductToUpdate
 POST http://localhost:3000/api/products
 Content-Type: application/json
 
 {
-    "name": "Remo Professional",
-    "description": "Remo de fibra de carbono",
-    "price": 200,
-    "quantity": 15,
-    "articleType": 2
+    "name": "Chaleco Salvavidas Universal",
+    "description": "Chaleco salvavidas ajustable para adultos, color naranja con bandas reflectivas para máxima visibilidad. Certificado para uso náutico.",
+    "price": 49.99,
+    "quantity": 10,
+    "articleType": 2,
+    "publishment": 1
 }
 
-### POST 4
+### POST 4 - Producto con ambos tipos
+POST http://localhost:3000/api/products
+Content-Type: application/json
+
+{
+    "name": "Remo de Kayak Ajustable",
+    "description": "Remo de kayak ajustable en longitud, fabricado en aluminio aeronáutico con palas de plástico resistente. Ideal para diferentes estaturas y tipos de kayak.",
+    "price": 79.99,
+    "quantity": 8,
+    "articleType": 3,
+    "kayakType": 2,
+    "publishment": 1
+}
+
+### POST 5 - Producto con precio inválido (más de 2 decimales)
+POST http://localhost:3000/api/products
+Content-Type: application/json
+
+{
+    "name": "Producto Test Decimales",
+    "description": "Producto para testear validación de decimales en el precio",
+    "price": 100.999,
+    "quantity": 1,
+    "articleType": 1,
+    "publishment": 1
+}
+
+### POST 6 - Producto sin tipos (debe fallar)
+POST http://localhost:3000/api/products
+Content-Type: application/json
+
+{
+    "name": "Producto Sin Tipo",
+    "description": "Este producto debería fallar porque no tiene tipo de artículo ni de kayak",
+    "price": 50.00,
+    "quantity": 1,
+    "publishment": 1
+}
+
+### POST 7 - Producto para eliminar
 # @name createProductToDelete
 POST http://localhost:3000/api/products
 Content-Type: application/json
 
 {
-    "name": "Carro Porta Kayak",
-    "description": "Carro para transportar kayaks",
-    "price": 300,
-    "quantity": 8,
-    "articleType": 3
+    "name": "Bolso Impermeable",
+    "description": "Bolso impermeable para equipo de kayak, capacidad 30L, cierre hermético roll-top. Flota en caso de caída al agua.",
+    "price": 29.99,
+    "quantity": 15,
+    "articleType": 4,
+    "publishment": 1
 }
 
-### PUT
+### UPDATE
 ### Modificar un producto
 PUT http://localhost:3000/api/products/{{idToUpdate}}
 Content-Type: application/json
 
 {
-    "name": "Kayak Explorer Pro",
-    "price": 1300,
-    "description": "Kayak recreativo mejorado para 2 personas"
+    "name": "CHALECO SALVAVIDAS ACTUALIZADO",
+    "price": 59.99,
+    "quantity": 8
+}
+
+### UPDATE 2 - Cambiar tipo (quitar articleType y agregar kayakType)
+PUT http://localhost:3000/api/products/{{idToUpdate}}
+Content-Type: application/json
+
+{
+    "articleType": null,
+    "kayakType": 3
+}
+
+### UPDATE 3 - Intentar quitar ambos tipos (debe fallar)
+PUT http://localhost:3000/api/products/{{idToUpdate}}
+Content-Type: application/json
+
+{
+    "articleType": null,
+    "kayakType": null
 }
 
 ### DELETE

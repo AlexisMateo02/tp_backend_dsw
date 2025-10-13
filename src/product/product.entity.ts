@@ -1,4 +1,4 @@
-import { Entity, Property, ManyToOne, Rel } from "@mikro-orm/core";
+import { Entity, Property, ManyToOne, Rel, ManyToMany, Collection } from "@mikro-orm/core";
 import { BaseEntity } from "../shared/dataBase/baseEntity.js";
 import { ArticleType } from "../articleType/articleType.entity.js";
 import { KayakType } from "../kayakType/kayakType.entity.js";
@@ -18,13 +18,16 @@ export class Product extends BaseEntity{
     @Property({ type: 'int', nullable: false })
     quantity!: number;
 
-    @ManyToOne (() => ArticleType, { nullable: true })
-    articleType!: Rel<ArticleType>;
+    @ManyToOne(() => ArticleType, { nullable: true })
+    articleType?: Rel<ArticleType>;
 
-    @ManyToOne (() => KayakType, { nullable: true })
+    @ManyToOne(() => KayakType, { nullable: true })
     kayakType?: Rel<KayakType>;
 
-    @ManyToOne (() => Publishment , { nullable: false })
-    publishment!: Rel<Publishment>;
+    // 🟡 MANTENER: Relación bidireccional con Publishment
+    @ManyToMany(() => Publishment, publishment => publishment.products, { 
+        nullable: true,
+        owner: false  // Publishment es el owner de la relación
+    })
+    publishments = new Collection<Publishment>(this);
 }
-

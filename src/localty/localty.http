@@ -1,0 +1,70 @@
+### GET ALL 
+### Obtener todas las localidades
+GET http://localhost:3000/api/localties
+
+### GET ONE
+### Obtener una localidad
+GET http://localhost:3000/api/localties/{{zipcodeToGet}}
+
+### POST
+### Crear una nueva localidad
+POST http://localhost:3000/api/localties
+Content-Type: application/json
+
+{
+    "zipcode": "7600",
+    "name": "Mar del Plata",
+    "province": 1
+}
+
+### POST 2
+# @name createLocaltyToGet
+POST http://localhost:3000/api/localties
+Content-Type: application/json
+
+{
+    "zipcode": "1000",
+    "name": "CABA",
+    "province": 1
+}
+
+### POST 3
+# @name createLocaltyToUpdate
+POST http://localhost:3000/api/localties
+Content-Type: application/json
+
+{
+    "zipcode": "2000",
+    "name": "Rosario", 
+    "province": 3
+}
+
+### POST 4
+# @name createLocaltyToDelete
+POST http://localhost:3000/api/localties
+Content-Type: application/json
+
+{
+    "zipcode": "3000",
+    "name": "Santa Fe",
+    "province": 3
+}
+
+### PUT
+### Modificar una localidad
+PUT http://localhost:3000/api/localties/{{zipcodeToUpdate}}
+Content-Type: application/json
+
+{
+    "name": "Rosario Updated",
+    "province": 3
+}
+
+### DELETE
+### Borrar una localidad
+DELETE http://localhost:3000/api/localties/{{zipcodeToDelete}}
+
+### IDs
+@zipcodeToGet = {{createLocaltyToGet.response.body.data.zipcode}}
+@zipcodeToUpdate = {{createLocaltyToUpdate.response.body.data.zipcode}}
+@zipcodeToDelete = {{createLocaltyToDelete.response.body.data.zipcode}}

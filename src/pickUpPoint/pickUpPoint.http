@@ -1,0 +1,74 @@
+### GET ALL 
+### Obtener todos los puntos de entrega
+GET http://localhost:3000/api/pickUpPoints
+
+### GET ONE
+### Obtener un punto de entrega
+GET http://localhost:3000/api/pickUpPoints/{{idToGet}}
+
+### POST
+### Crear un nuevo punto de entrega
+POST http://localhost:3000/api/pickUpPoints
+Content-Type: application/json
+
+{
+    "adressStreet": "Calle Principal",
+    "adressnumber": 123,
+    "adressFloor": 2,
+    "adressApartment": "A",
+    "tower": 1,
+    "localty": "7600"
+}
+
+### POST 2
+# @name createPickUpPointToGet
+POST http://localhost:3000/api/pickUpPoints
+Content-Type: application/json
+
+{
+    "adressStreet": "Avenida Central",
+    "adressnumber": 456,
+    "localty": "1000"
+}
+
+### POST 3
+# @name createPickUpPointToUpdate
+POST http://localhost:3000/api/pickUpPoints
+Content-Type: application/json
+
+{
+    "adressStreet": "Calle Secundaria",
+    "adressnumber": 789,
+    "adressFloor": 1,
+    "localty": "2000"
+}
+
+### POST 4
+# @name createPickUpPointToDelete
+POST http://localhost:3000/api/pickUpPoints
+Content-Type: application/json
+
+{
+    "adressStreet": "Calle Terciaria",
+    "adressnumber": 321,
+    "localty": "3000"
+}
+
+### PUT
+### Modificar un punto de entrega
+PUT http://localhost:3000/api/pickUpPoints/{{idToUpdate}}
+Content-Type: application/json
+
+{
+    "adressStreet": "Calle Secundaria Actualizada",
+    "adressnumber": 799
+}
+
+### DELETE
+### Borrar un punto de entrega
+DELETE http://localhost:3000/api/pickUpPoints/{{idToDelete}}
+
+### IDs
+@idToGet = {{createPickUpPointToGet.response.body.data.id}}
+@idToUpdate = {{createPickUpPointToUpdate.response.body.data.id}}
+@idToDelete = {{createPickUpPointToDelete.response.body.data.id}}

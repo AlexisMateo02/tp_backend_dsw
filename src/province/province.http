@@ -1,0 +1,66 @@
+### GET ALL 
+### Obtener todas las provincias
+GET http://localhost:3000/api/provinces
+
+### GET ONE
+### Obtener una provincia
+GET http://localhost:3000/api/provinces/{{idToGet}}
+
+### POST
+### Crear una nueva provincia
+POST http://localhost:3000/api/provinces
+Content-Type: application/json
+
+{
+    "name": "Buenos Aires",
+    "country": "Argentina"
+}
+
+### POST 2
+# @name createProvinceToGet
+POST http://localhost:3000/api/provinces
+Content-Type: application/json
+
+{
+    "name": "Córdoba",
+    "country": "Argentina"
+}
+
+### POST 3
+# @name createProvinceToUpdate
+POST http://localhost:3000/api/provinces
+Content-Type: application/json
+
+{
+    "name": "Santa Fe", 
+    "country": "Argentina"
+}
+
+### POST 4
+# @name createProvinceToDelete
+POST http://localhost:3000/api/provinces
+Content-Type: application/json
+
+{
+    "name": "Mendoza",
+    "country": "Argentina"
+}
+
+### PUT
+### Modificar una provincia
+PUT http://localhost:3000/api/provinces/{{idToUpdate}}
+Content-Type: application/json
+
+{
+    "name": "Santa Fe",
+    "country": "Argentina"
+}
+
+### DELETE
+### Borrar una provincia
+DELETE http://localhost:3000/api/provinces/{{idToDelete}}
+
+### IDs
+@idToGet = {{createProvinceToGet.response.body.data.id}}
+@idToUpdate = {{createProvinceToUpdate.response.body.data.id}}
+@idToDelete = {{createProvinceToDelete.response.body.data.id}}

@@ -1,28 +1,35 @@
-import { Entity, Property, OneToMany, Rel, ManyToOne, Cascade } from "@mikro-orm/core";
+import { Entity, Property, Rel, ManyToOne, Collection, ManyToMany } from "@mikro-orm/core";
 import { BaseEntity } from "../shared/dataBase/baseEntity.js";
-import { Purchase } from "../purchase/purchase.entity.js";
 import { Product } from "../product/product.entity.js";
 import { User } from "../user/user.entity.js";
 import { PickUpPoint } from "../pickUpPoint/pickUpPoint.entity.js";
-
 
 @Entity()
 export class Publishment extends BaseEntity{
     @Property({ nullable: false })
     datePublishment!: Date;
 
-    @Property({nullable: false})
+    @Property({ nullable: false })
     status!: string; 
 
-    @OneToMany (( ) => Product , (product) => product.publishment, { cascade: [Cascade.ALL],nullable: false})
-    products!: Rel<Product[]>; 
+    @Property({ type: 'float', nullable: false })
+    price!: number; // ← precioPublicacion del diagrama
 
-    @ManyToOne (() => Purchase, { nullable: true })
-    purchase?: Rel<Purchase>;
+    // 🟡 CORRECCIÓN: Relación ManyToMany con Product
+    @ManyToMany(() => Product, product => product.publishments, {
+        owner: true,
+        nullable: false
+    })
+    products = new Collection<Product>(this);
 
-    @ManyToOne (() => User, { nullable: false })
+    // 🟡 CORRECCIÓN: User debería ser Vendedor específicamente
+    @ManyToOne(() => User, { nullable: false })
     user!: Rel<User>;
-    
-    @ManyToOne (() => PickUpPoint, { nullable: false })
+
+    @ManyToOne(() => PickUpPoint, { nullable: false })
     pickUpPoint!: Rel<PickUpPoint>;
+
+    // ❌ REMOVER: La relación con Purchase va en Purchase, no aquí
+    // @ManyToOne(() => Purchase, { nullable: true })
+    // purchase?: Rel<Purchase>;
 }

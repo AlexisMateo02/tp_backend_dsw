@@ -1,0 +1,80 @@
+### GET ALL 
+### Obtener todos los productos
+GET http://localhost:3000/api/products
+
+### GET ONE
+### Obtener un producto
+GET http://localhost:3000/api/products/{{idToGet}}
+
+### POST
+### Crear un nuevo producto (Artículo)
+POST http://localhost:3000/api/products
+Content-Type: application/json
+
+{
+    "name": "Chaleco Salvavidas Pro",
+    "description": "Chaleco de alta flotabilidad",
+    "price": 150,
+    "quantity": 10,
+    "articleType": 1
+}
+
+### POST 2
+### Crear un nuevo producto (Kayak)
+# @name createProductToGet
+POST http://localhost:3000/api/products
+Content-Type: application/json
+
+{
+    "name": "Kayak Explorer",
+    "description": "Kayak recreativo para 2 personas",
+    "price": 1200,
+    "quantity": 5,
+    "kayakType": 1
+}
+
+### POST 3
+# @name createProductToUpdate
+POST http://localhost:3000/api/products
+Content-Type: application/json
+
+{
+    "name": "Remo Professional",
+    "description": "Remo de fibra de carbono",
+    "price": 200,
+    "quantity": 15,
+    "articleType": 2
+}
+
+### POST 4
+# @name createProductToDelete
+POST http://localhost:3000/api/products
+Content-Type: application/json
+
+{
+    "name": "Carro Porta Kayak",
+    "description": "Carro para transportar kayaks",
+    "price": 300,
+    "quantity": 8,
+    "articleType": 3
+}
+
+### PUT
+### Modificar un producto
+PUT http://localhost:3000/api/products/{{idToUpdate}}
+Content-Type: application/json
+
+{
+    "name": "Kayak Explorer Pro",
+    "price": 1300,
+    "description": "Kayak recreativo mejorado para 2 personas"
+}
+
+### DELETE
+### Borrar un producto
+DELETE http://localhost:3000/api/products/{{idToDelete}}
+
+### IDs
+@idToGet = {{createProductToGet.response.body.data.id}}
+@idToUpdate = {{createProductToUpdate.response.body.data.id}}
+@idToDelete = {{createProductToDelete.response.body.data.id}}

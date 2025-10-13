@@ -1,4 +1,4 @@
-import { Entity, OneToMany, Property, Collection, Cascade } from "@mikro-orm/core";
+import { Entity, OneToOne, Property, Collection, Cascade } from "@mikro-orm/core";
 import { BaseEntity } from "../shared/dataBase/baseEntity.js";
 import { Product } from "../product/product.entity.js";
 
@@ -28,6 +28,8 @@ export class KayakType extends BaseEntity{
     @Property({ type: 'float', nullable: false })
     beam!: number;
 
-    @OneToMany(() => Product, (product) => product.kayakType, { cascade: [Cascade.ALL],nullable: true})
-    products = new Collection<Product>(this)
+  // Relación ONE-TO-ONE con Product
+  @OneToOne(() => Product, product => product.kayakType, { nullable: true })
+  product?: Product;
+
 }

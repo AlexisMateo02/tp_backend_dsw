@@ -1,87 +1,54 @@
 import mysql, { Connection } from 'mysql2/promise'
-import dotenv from 'dotenv'
+import { config } from '../../../config.js'
 
-dotenv.config()
-
-interface DataBaseConfig {
-	host: string
-	port: number
-	user: string | undefined
-	password: string | undefined
-}
-
-interface DataBaseError extends Error {
-	code?: string
-}
-
-const setupDataBase = async (): Promise<void> => {
+const setupDatabase = async (): Promise<void> => {
 	let connection: Connection | null = null
 
 	try {
 		console.log('Conectando a MySQL como administrador...')
 
-		const config: DataBaseConfig = {
-			host: process.env.DB_HOST || 'localhost',
-			port: parseInt(process.env.DB_PORT || '3306', 10),
-			user: process.env.MYSQL_ROOT_USER,
-			password: process.env.MYSQL_ROOT_PASSWORD,
+		if (!config.mysqlRoot.user || !config.mysqlRoot.password) {
+			throw new Error('MYSQL_ROOT_USER y MYSQL_ROOT_PASSWORD son requeridos')
 		}
 
-		connection = await mysql.createConnection(config)
+		connection = await mysql.createConnection({
+			host: config.db.host,
+			port: config.db.port,
+			user: config.mysqlRoot.user,
+			password: config.mysqlRoot.password,
+		})
 
 		console.log('Conexión establecida')
 
-		const dbName: string | undefined = process.env.DB_NAME
-		const dbUser: string | undefined = process.env.DB_USER
-		const dbPassword: string | undefined = process.env.DB_PASSWORD
+		// Crear base de datos de desarrollo
+		await connection.execute(`CREATE DATABASE IF NOT EXISTS ${config.db.name}`)
+		console.log(`Base de datos "${config.db.name}" creada/verificada`)
 
-		if (!dbName || !dbUser || !dbPassword) {
-			throw new Error('Variables de entorno requeridas no están definidas: DB_NAME, DB_USER, DB_PASSWORD')
+		// Crear base de datos de testing (si está configurada)
+		if (config.db.testUrl) {
+			const testDbName = config.db.testUrl.split('/').pop()?.split('?')[0]
+			await connection.execute(`CREATE DATABASE IF NOT EXISTS ${testDbName}`)
+			console.log(`Base de datos de testing "${testDbName}" creada/verificada`)
 		}
 
-		await connection.execute(`CREATE DATABASE IF NOT EXISTS ${dbName}`)
-		console.log(`Base de datos "${dbName}" creada/verificada`)
+		// Crear usuario
+		await connection.execute(`CREATE USER IF NOT EXISTS '${config.db.user}'@'%' IDENTIFIED BY '${config.db.password}'`)
+		console.log(`Usuario "${config.db.user}" creado/verificado`)
 
-		await connection.execute(`CREATE USER IF NOT EXISTS '${dbUser}'@'%' IDENTIFIED BY '${dbPassword}'`)
-		console.log(`Usuario "${dbUser}" creado/verificado`)
+		// Otorgar permisos
+		await connection.execute(`GRANT ALL PRIVILEGES ON ${config.db.name}.* TO '${config.db.user}'@'%'`)
 
-		await connection.execute(`GRANT ALL ON ${dbName}.* TO ${dbUser}@'%'`)
-		console.log(`Permisos otorgados al usuario "${dbUser}"`)
+		if (config.db.testUrl) {
+			const testDbName = config.db.testUrl.split('/').pop()?.split('?')[0]
+			await connection.execute(`GRANT ALL PRIVILEGES ON ${testDbName}.* TO '${config.db.user}'@'%'`)
+		}
 
 		await connection.execute('FLUSH PRIVILEGES')
-		console.log('Privilegios actualizados')
+		console.log('Privilegios otorgados y actualizados')
 
-		console.log('✅ Configuración de base de datos completada exitosamente')
+		console.log('\nConfiguración de base de datos completada exitosamente')
 	} catch (error) {
-		const dbError = error as DataBaseError
-
-		console.error('❌ Error configurando la base de datos:')
-		console.error(dbError.message)
-
-		switch (dbError.code) {
-			case 'ER_ACCESS_DENIED_ERROR':
-				console.log('\nVerifica que:')
-				console.log('   - El usuario y contraseña de root en .env sean correctos')
-				console.log('   - MySQL esté ejecutándose')
-				break
-			case 'ECONNREFUSED':
-				console.log('\nNo se pudo conectar al servidor MySQL:')
-				console.log('   - Verifica que MySQL esté ejecutándose')
-				console.log(`   - Verifica que el puerto ${process.env.DB_PORT || 3306} esté disponible`)
-				console.log('   - Verifica que la dirección del host sea correcta')
-				break
-			case 'ER_NOT_SUPPORTED_AUTH_MODE':
-				console.log('\nProblema de autenticación:')
-				console.log('   - El método de autenticación no es compatible')
-				console.log('   - Puede que necesites actualizar la contraseña del usuario usando ALTER USER')
-				break
-			default:
-				console.log('\nVerifica que:')
-				console.log('   - Todas las variables de entorno en .env estén configuradas')
-				console.log('   - Tengas los permisos necesarios en MySQL')
-				console.log('   - La conexión a la base de datos sea estable')
-		}
-
+		console.error('Error configurando la base de datos:', error)
 		process.exit(1)
 	} finally {
 		if (connection) {
@@ -91,4 +58,4 @@ const setupDataBase = async (): Promise<void> => {
 	}
 }
 
-setupDataBase()
+setupDatabase()

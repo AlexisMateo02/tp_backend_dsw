@@ -8,9 +8,13 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc -p ./tsconfig.json",
     "start:dev": "tsc-watch --noClear -p ./tsconfig.json --onSuccess \"node ./dist/app.js\"",
-    "start:run": "node ./dist/app.js",
-    "db:setup": "pnpm build && node ./dist/shared/db/scripts/setupDataBase.js",
-    "dev": "pnpm db:setup && pnpm start:dev"
+    "start": "node ./dist/app.js",
+    "db:setup": "tsx src/shared/db/scripts/setupDataBase.ts",
+    "db:setup:build": "pnpm build && node ./dist/shared/db/scripts/setupDataBase.js",
+    "dev": "tsx watch src/server.ts",
+    "dev:fresh": "pnpm db:setup && pnpm dev",
+    "clean": "rm -rf dist",
+    "clean:all": "rm -rf dist node_modules pnpm-lock.yaml"
   },
   "keywords": [],
   "author": "",
@@ -18,9 +22,12 @@
   "packageManager": "pnpm@10.11.0",
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
+    "@types/cors": "^2.8.19",
     "@types/express": "5.0.3",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "24.0.14",
     "tsc-watch": "6.0.4",
+    "tsx": "^4.20.6",
     "typescript": "5.1.3"
   },
   "dependencies": {
@@ -28,9 +35,13 @@
     "@mikro-orm/mysql": "6.4.16",
     "@mikro-orm/sql-highlighter": "1.0.1",
     "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
+    "date-fns": "^4.1.0",
     "dotenv": "^17.2.3",
     "express": "5.1.0",
+    "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.15.2",
-    "reflect-metadata": "0.2.2"
+    "reflect-metadata": "0.2.2",
+    "zod": "^4.1.12"
   }
 }

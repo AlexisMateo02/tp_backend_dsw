@@ -1,11 +1,12 @@
-import { Entity, Property, PrimaryKey, ManyToOne, Rel, Cascade, OneToMany, Collection } from '@mikro-orm/core'
+import { Entity, Property, ManyToOne, Rel, Cascade, OneToMany, Collection } from '@mikro-orm/core'
+import { BaseEntity } from '../shared/dataBase/baseEntity.js'
 import { Province } from '../province/province.entity.js'
 import { User } from '../user/user.entity.js'
 import { PickUpPoint } from '../pickUpPoint/pickUpPoint.entity.js'
 
 @Entity()
-export class Localty {
-	@PrimaryKey()
+export class Localty extends BaseEntity {
+	@Property({ nullable: false, unique: true })
 	zipcode!: string
 
 	@Property({ nullable: false, unique: true })

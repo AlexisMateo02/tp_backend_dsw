@@ -9,7 +9,7 @@ import {
 export const localtyrouter = express.Router()
 
 localtyrouter.get('/', controllerLocalty.findAll)
-localtyrouter.get('/:zipcode', controllerLocalty.findOne)
+localtyrouter.get('/:id', controllerLocalty.findOne)
 localtyrouter.post('/', sanitizeLocaltyInput, validateCreateInput, controllerLocalty.add)
-localtyrouter.put('/:zipcode', sanitizeLocaltyInput, validateUpdateInput, controllerLocalty.update)
-localtyrouter.delete('/:zipcode', controllerLocalty.remove)
+localtyrouter.put('/:id', sanitizeLocaltyInput, validateUpdateInput, controllerLocalty.update)
+localtyrouter.delete('/:id', controllerLocalty.remove)

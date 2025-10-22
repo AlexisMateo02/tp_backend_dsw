@@ -1,5 +1,5 @@
 import { orm } from '../shared/dataBase/orm.js'
-import { validateZipCode } from '../shared/utils/validationZipCode.js'
+import { validateId } from '../shared/utils/validationId.js'
 import { Localty } from './localty.entity.js'
 import { Province } from '../province/province.entity.js'
 import { User } from '../user/user.entity.js'
@@ -13,28 +13,23 @@ interface LocaltyCreateData {
 	province: number // ID de la provincia
 }
 
-interface LocaltyUpdateData {
-	name?: string
-	province?: number
-}
+interface LocaltyUpdateData extends Partial<LocaltyCreateData> {}
 
 export async function getAllLocalties() {
 	return await entityManager.find(Localty, {}, { populate: ['province'] })
 }
 
-export async function getLocaltyByZipcode(zipcode: string) {
-	validateZipCode(zipcode)
-
-	const localty = await entityManager.findOne(Localty, { zipcode }, { populate: ['province'] })
-
+export async function getLocaltyById(id: number) {
+	validateId(id, 'localty')
+	const localty = await entityManager.findOne(Localty, { id }, {populate:['province']})
 	if (!localty) {
-		throw new Error(`La localidad con código postal ${zipcode} no fue encontrada`)
+		throw new Error(`La localidad con el ID ${id} no fue encontrada`)
 	}
 	return localty
 }
 
-export async function createLocalty(localtyData: LocaltyCreateData) {
-	validateZipCode(localtyData.zipcode)
+
+export async function createLocalty(localtyData: LocaltyCreateData) {	
 
 	// Validar código postal único
 	const existingLocalty = await entityManager.findOne(Localty, { zipcode: localtyData.zipcode })
@@ -65,16 +60,26 @@ export async function createLocalty(localtyData: LocaltyCreateData) {
 	return localty
 }
 
-export async function updateLocalty(zipcode: string, localtyData: LocaltyUpdateData) {
-	const localty = await getLocaltyByZipcode(zipcode)
+export async function updateLocalty(id: number, localtyData: LocaltyUpdateData) {
+	const localty = await getLocaltyById(id)
+
+
+	// Validar código postal único si se está actualizando
+	if (localtyData.zipcode && localtyData.zipcode !== localty.zipcode) {
+		const existingZipCode = await entityManager.findOne(Localty, { zipcode: localtyData.zipcode })
+		if (existingZipCode) {
+			throw new Error(`La localidad con código postal '${localtyData.zipcode}' ya existe`)
+		}
+	}
 
 	// Validar nombre único si se está actualizando
 	if (localtyData.name && localtyData.name !== localty.name) {
 		const existingName = await entityManager.findOne(Localty, { name: localtyData.name })
 		if (existingName) {
-			throw new Error(`La localidad '${localtyData.name}' ya existe`)
+			throw new Error(`La localidad'${localtyData.name}' ya existe`)
 		}
 	}
+
 
 	// Si se actualiza la provincia, obtener la entidad completa
 	if (localtyData.province) {
@@ -83,6 +88,10 @@ export async function updateLocalty(zipcode: string, localtyData: LocaltyUpdateD
 			throw new Error(`La provincia con ID ${localtyData.province} no existe`)
 		}
 		localty.province = province
+	}
+
+	if (localtyData.zipcode) {
+		localty.zipcode = localtyData.zipcode
 	}
 
 	if (localtyData.name) {
@@ -94,8 +103,8 @@ export async function updateLocalty(zipcode: string, localtyData: LocaltyUpdateD
 	return localty
 }
 
-export async function deleteLocalty(zipcode: string) {
-	const localty = await getLocaltyByZipcode(zipcode)
+export async function deleteLocalty(id: number) {
+	const localty = await getLocaltyById(id)
 
 	// Verificar usuarios asociados
 	const userCount = await entityManager.count(User, { localty })

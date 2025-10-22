@@ -1,18 +1,17 @@
-import { Entity, Property, OneToMany, Rel, Cascade, ManyToOne, PrimaryKey } from "@mikro-orm/core";
-import { Purchase } from "../purchase/purchase.entity.js";
+import { Entity, Property, OneToMany, Rel, Cascade, ManyToOne, PrimaryKey } from '@mikro-orm/core'
+import type { Purchase } from '../purchase/purchase.entity.js'
 
 @Entity()
-export class Payment{
-    @ManyToOne(() => Purchase, { primary: true })
-    purchase!: Purchase;
+export class Payment {
+	@ManyToOne(() => 'Purchase', { primary: true })
+	purchase!: Purchase
 
-    @PrimaryKey()
-    id!: number;
+	@PrimaryKey()
+	id!: number
 
-    @Property({ nullable: false }) //ver!!!!
-    date!: Date;
+	@Property({ nullable: false }) //ver!!!!
+	date!: Date
 
-    @Property ({nullable : false})
-    method!: string;
-
+	@Property({ nullable: false })
+	method!: string
 }

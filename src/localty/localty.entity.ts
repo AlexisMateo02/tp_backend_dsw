@@ -15,11 +15,11 @@ export class Localty {
 	province!: Rel<Province>
 
 	@OneToMany(() => User, user => user.localty, {
-		cascade: [Cascade.ALL],
+		cascade: [],
 		nullable: true,
 	})
 	users = new Collection<User>(this)
 
-	@OneToMany(() => PickUpPoint, pickUpPoint => pickUpPoint.localty, { cascade: [Cascade.ALL], nullable: true })
+	@OneToMany(() => PickUpPoint, pickUpPoint => pickUpPoint.localty, { cascade: [], nullable: true })
 	pickUpPoints = new Collection<PickUpPoint>(this)
 }

@@ -3,7 +3,7 @@ import { BaseEntity } from '../shared/dataBase/baseEntity.js'
 import { Localty } from '../localty/localty.entity.js'
 import { Purchase } from '../purchase/purchase.entity.js'
 import { Publishment } from '../publishment/publishment.entity.js'
-import { Rating } from '../rating/rating.entity.js'
+import type { Rating } from '../rating/rating.entity.js'
 
 @Entity()
 export class User extends BaseEntity {
@@ -35,11 +35,11 @@ export class User extends BaseEntity {
 	purchases!: Rel<Purchase[]>
 
 	@OneToMany(() => Publishment, publishment => publishment.user, { cascade: [Cascade.ALL], nullable: true })
-	publishments!: Rel<Purchase[]>
+	publishments!: Rel<Publishment[]>
 
-	@OneToMany(() => Rating, rating => rating.customer)
+	@OneToMany(() => 'Rating', 'customer')
 	ratingsGiven = new Collection<Rating>(this)
 
-	@OneToMany(() => Rating, rating => rating.seller)
+	@OneToMany(() => 'Rating', 'seller')
 	ratingsReceived = new Collection<Rating>(this)
 }

@@ -4,34 +4,33 @@ import { HttpResponse } from '../shared/errors/errorManager.js'
 function sanitizeKayakTypeInput(req: Request, res: Response, next: NextFunction) {
 	req.body.sanitizedInput = {
 		model: typeof req.body.model === 'string' ? req.body.model.trim() : undefined,
-		brand: typeof req.body.brand === 'string' ? req.body.brand.trim().toUpperCase() : undefined,
-		material: typeof req.body.material === 'string' ? req.body.material.trim().toUpperCase() : undefined,
+		brand: typeof req.body.brand === 'string' ? req.body.brand.trim() : undefined, // .toUpperCase() : undefined,
+		material: typeof req.body.material === 'string' ? req.body.material.trim() : undefined, // .toUpperCase() : undefined,
 		paddlersQuantity:
 			typeof req.body.paddlersQuantity === 'number'
 				? req.body.paddlersQuantity
 				: typeof req.body.paddlersQuantity === 'string'
-				? Number.parseInt(req.body.paddlersQuantity)
-				: undefined,
+					? Number.parseInt(req.body.paddlersQuantity)
+					: undefined,
 		maxWeightCapacity:
 			typeof req.body.maxWeightCapacity === 'number'
 				? req.body.maxWeightCapacity
 				: typeof req.body.maxWeightCapacity === 'string'
-				? Number.parseFloat(req.body.maxWeightCapacity)
-				: undefined,
-		constructionType:
-			typeof req.body.constructionType === 'string' ? req.body.constructionType.trim().toUpperCase() : undefined,
+					? Number.parseFloat(req.body.maxWeightCapacity)
+					: undefined,
+		constructionType: typeof req.body.constructionType === 'string' ? req.body.constructionType.trim() : undefined, // .toUpperCase() : undefined,
 		length:
 			typeof req.body.length === 'number'
 				? req.body.length
 				: typeof req.body.length === 'string'
-				? Number.parseFloat(req.body.length)
-				: undefined,
+					? Number.parseFloat(req.body.length)
+					: undefined,
 		beam:
 			typeof req.body.beam === 'number'
 				? req.body.beam
 				: typeof req.body.beam === 'string'
-				? Number.parseFloat(req.body.beam)
-				: undefined,
+					? Number.parseFloat(req.body.beam)
+					: undefined,
 	}
 	Object.keys(req.body.sanitizedInput).forEach(key => {
 		if (req.body.sanitizedInput[key] === undefined) {

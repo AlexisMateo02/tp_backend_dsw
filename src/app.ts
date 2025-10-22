@@ -36,6 +36,7 @@ app.use('/api/localties', localtyrouter)
 app.use('/api/kayakTypes', kayakTypeRouter)
 app.use('/api/products', productRouter)
 app.use('/api/pickUpPoints', pickUpPointRouter)
+// Rutas para Autenticación
 
 app.use((_, res) => {
 	return res.status(404).json({ message: 'Resource not found' })

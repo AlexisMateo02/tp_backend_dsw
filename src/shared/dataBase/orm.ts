@@ -7,7 +7,7 @@ export const orm = await MikroORM.init({
 	//TODO: Configuración básica del ORM
 	entities: ['dist/**/*.entity.js'],
 	entitiesTs: ['src/**/*.entity.ts'],
-	dbName: 'kayakbrokers',
+	dbName: config.db.name,
 	driver: MySqlDriver,
 	clientUrl: config.db.url,
 	highlighter: new SqlHighlighter(),

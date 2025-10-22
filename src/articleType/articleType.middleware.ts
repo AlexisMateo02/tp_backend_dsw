@@ -3,7 +3,7 @@ import { HttpResponse } from '../shared/errors/errorManager.js'
 
 function sanitizeArticleTypeInput(req: Request, res: Response, next: NextFunction) {
 	req.body.sanitizedInput = {
-		name: typeof req.body.name === 'string' ? req.body.name.trim().toUpperCase() : undefined,
+		name: typeof req.body.name === 'string' ? req.body.name.trim() : undefined, //.toUpperCase() : undefined,
 		mainUse: typeof req.body.mainUse === 'string' ? req.body.mainUse.trim() : undefined,
 	}
 

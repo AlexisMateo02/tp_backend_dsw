@@ -112,7 +112,7 @@ export async function createUser(userData: UserCreateData) {
 	if (!localty) {
 		throw new Error(`La localidad con código postal ${userData.localty} no existe`)
 	}
-	// Validar que el email no existe
+	// Validar que un usuario con el email ingresado no existe
 	const existingUser = await entityManager.findOne(User, { email: userData.email.toLowerCase() })
 	if (existingUser) {
 		throw new Error('Ya existe un usuario con este email')

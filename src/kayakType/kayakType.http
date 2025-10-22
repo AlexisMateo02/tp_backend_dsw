@@ -73,7 +73,7 @@ Content-Type: application/json
 
 ### UPDATE
 ### Modificar un tipo de kayak
-PUT http://localhost:3000/api/kayakTypes/{{idToUpdate}}
+PUT http://localhost:3000/api/kayakTypes/3
 Content-Type: application/json
 
 {

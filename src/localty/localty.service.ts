@@ -20,17 +20,15 @@ export async function getAllLocalties() {
 }
 
 export async function getLocaltyById(id: number) {
-	validateId(id, 'localty')
-	const localty = await entityManager.findOne(Localty, { id }, {populate:['province']})
+	validateId(id, 'localidad')
+	const localty = await entityManager.findOne(Localty, { id }, { populate: ['province'] })
 	if (!localty) {
 		throw new Error(`La localidad con el ID ${id} no fue encontrada`)
 	}
 	return localty
 }
 
-
-export async function createLocalty(localtyData: LocaltyCreateData) {	
-
+export async function createLocalty(localtyData: LocaltyCreateData) {
 	// Validar código postal único
 	const existingLocalty = await entityManager.findOne(Localty, { zipcode: localtyData.zipcode })
 	if (existingLocalty) {
@@ -63,7 +61,6 @@ export async function createLocalty(localtyData: LocaltyCreateData) {
 export async function updateLocalty(id: number, localtyData: LocaltyUpdateData) {
 	const localty = await getLocaltyById(id)
 
-
 	// Validar código postal único si se está actualizando
 	if (localtyData.zipcode && localtyData.zipcode !== localty.zipcode) {
 		const existingZipCode = await entityManager.findOne(Localty, { zipcode: localtyData.zipcode })
@@ -79,7 +76,6 @@ export async function updateLocalty(id: number, localtyData: LocaltyUpdateData) 
 			throw new Error(`La localidad'${localtyData.name}' ya existe`)
 		}
 	}
-
 
 	// Si se actualiza la provincia, obtener la entidad completa
 	if (localtyData.province) {

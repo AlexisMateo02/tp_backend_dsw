@@ -1,7 +1,6 @@
 import { Request, Response } from 'express'
 import { HttpResponse } from '../shared/errors/errorManager.js'
-import { getAllLocalties,getLocaltyById, createLocalty, updateLocalty, deleteLocalty } from './localty.service.js'
-
+import { getAllLocalties, getLocaltyById, createLocalty, updateLocalty, deleteLocalty } from './localty.service.js'
 
 async function findAll(req: Request, res: Response) {
 	try {
@@ -18,9 +17,7 @@ async function findOne(req: Request, res: Response) {
 		const localty = await getLocaltyById(id)
 		return HttpResponse.Ok(res, 'Localidad encontrada correctamente', localty)
 	} catch (err: any) {
-		if (
-			err.message === 'Id de localidad inválido'
-		) {
+		if (err.message === 'ID de localidad inválido') {
 			return HttpResponse.BadRequest(res, err.message)
 		}
 		if (err.message.includes('no fue encontrada')) {
@@ -53,7 +50,7 @@ async function update(req: Request, res: Response) {
 		const localty = await updateLocalty(id, localtyData)
 		return HttpResponse.Ok(res, 'Localidad actualizada correctamente', localty)
 	} catch (err: any) {
-		if (err.message === 'Id de localidad inválido') {
+		if (err.message === 'ID de localidad inválido') {
 			return HttpResponse.BadRequest(res, err.message)
 		}
 		if (err.message.includes('ya existe')) {
@@ -75,7 +72,7 @@ async function remove(req: Request, res: Response) {
 		await deleteLocalty(id)
 		return HttpResponse.NoContent(res)
 	} catch (err: any) {
-		if (err.message === 'Id de localidad inválido') {
+		if (err.message === 'ID de localidad inválido') {
 			return HttpResponse.BadRequest(res, err.message)
 		}
 		if (err.message.includes('no fue encontrada')) {

@@ -6,7 +6,7 @@ GET http://localhost:3000/api/localties
 
 ### GET ONE
 ### Obtener una localidad específica
-GET http://localhost:3000/api/localties/{{zipcodeToGet}}
+GET http://localhost:3000/api/localties/{{idToGet}}
 
 ### POST - Rosario (ciudad principal)
 POST http://localhost:3000/api/localties
@@ -163,7 +163,7 @@ Content-Type: application/json
 
 ### UPDATE
 ### Modificar una localidad
-PUT http://localhost:3000/api/localties/{{zipcodeToUpdate}}
+PUT http://localhost:3000/api/localties/{{idToUpdate}}
 Content-Type: application/json
 
 {
@@ -173,9 +173,9 @@ Content-Type: application/json
 
 ### DELETE
 ### Borrar una localidad
-DELETE http://localhost:3000/api/localties/{{zipcodeToDelete}}
+DELETE http://localhost:3000/api/localties/{{idToDelete}}
 
-### ZIPCODES
-@zipcodeToGet = {{createLocalityToGet.response.body.data.zipcode}}
-@zipcodeToUpdate = {{createLocalityToUpdate.response.body.data.zipcode}}
-@zipcodeToDelete = {{createLocalityToDelete.response.body.data.zipcode}}
+### IDs
+@idToGet = {{createLocalityToGet.response.body.data.id}}
+@idToUpdate = {{createLocalityToUpdate.response.body.data.id}}
+@idToDelete = {{createLocalityToDelete.response.body.data.id}}

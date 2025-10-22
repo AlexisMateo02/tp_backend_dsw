@@ -15,7 +15,7 @@ interface UserCreateData {
 	lastName: string
 	email: string
 	password: string
-	localty: string // zipcode de la localidad
+	localty: number // id de la localidad
 	sellsQuantity?: number
 	sellerType?: string
 }
@@ -108,9 +108,9 @@ export async function getUserWithSensitiveData(id: number): Promise<User> {
 
 export async function createUser(userData: UserCreateData) {
 	// Validar que la localidad existe
-	const localty = await entityManager.findOne(Localty, { zipcode: userData.localty })
+	const localty = await entityManager.findOne(Localty, { id: userData.localty })
 	if (!localty) {
-		throw new Error(`La localidad con código postal ${userData.localty} no existe`)
+		throw new Error(`La localidad con ID ${userData.localty} no existe`)
 	}
 	// Validar que un usuario con el email ingresado no existe
 	const existingUser = await entityManager.findOne(User, { email: userData.email.toLowerCase() })
@@ -143,9 +143,9 @@ export async function updateUser(id: number, userData: UserUpdateData) {
 
 	// Validar localidad si se proporciona
 	if (userData.localty) {
-		const localty = await entityManager.findOne(Localty, { zipcode: userData.localty })
+		const localty = await entityManager.findOne(Localty, { id: userData.localty })
 		if (!localty) {
-			throw new Error(`La localidad con código postal ${userData.localty} no existe`)
+			throw new Error(`La localidad con ID ${userData.localty} no existe`)
 		}
 		user.localty = localty
 	}
@@ -257,10 +257,10 @@ export async function getUserStats(id: number) {
 	}
 }
 
-export async function getUsersByLocalty(zipcode: string) {
-	const localty = await entityManager.findOne(Localty, { zipcode })
+export async function getUsersByLocalty(id: number) {
+	const localty = await entityManager.findOne(Localty, { id })
 	if (!localty) {
-		throw new Error(`La localidad con código postal ${zipcode} no existe`)
+		throw new Error(`La localidad con ID ${id} no existe`)
 	}
 
 	const users = await entityManager.find(

@@ -15,7 +15,6 @@ async function findAll(req: Request, res: Response) {
         const pickUpPoints = await getAllPickUpPoints()
         return HttpResponse.Ok(res, 'Todos los puntos de recogida fueron encontrados correctamente', pickUpPoints)
     } catch (err: any) {
-        console.error('Error en findAll pickUpPoints:', err)
         return HttpResponse.Error(res, 'Fallo al encontrar puntos de recogida')
     }
 }
@@ -26,8 +25,6 @@ async function findOne(req: Request, res: Response) {
         const pickUpPoint = await getPickUpPointById(id)
         return HttpResponse.Ok(res, 'Punto de recogida encontrado correctamente', pickUpPoint)
     } catch (err: any) {
-        console.error('Error en findOne pickUpPoint:', err)
-        
         if (err.message === 'ID de punto de recogida inválido') {
             return HttpResponse.BadRequest(res, err.message)
         }
@@ -44,8 +41,6 @@ async function add(req: Request, res: Response) {
         const pickUpPoint = await createPickUpPoint(pickUpPointData)
         return HttpResponse.Created(res, 'Punto de recogida creado correctamente', pickUpPoint)
     } catch (err: any) {
-        console.error('Error en add pickUpPoint:', err)
-        
         if (err.message.includes('no existe')) {
             return HttpResponse.NotFound(res, err.message)
         }
@@ -63,8 +58,6 @@ async function update(req: Request, res: Response) {
         const pickUpPoint = await updatePickUpPoint(id, pickUpPointData)
         return HttpResponse.Ok(res, 'Punto de recogida actualizado correctamente', pickUpPoint)
     } catch (err: any) {
-        console.error('Error en update pickUpPoint:', err)
-        
         if (err.message.includes('no existe')) {
             return HttpResponse.NotFound(res, err.message)
         }
@@ -87,8 +80,6 @@ async function remove(req: Request, res: Response) {
         await deletePickUpPoint(id)
         return HttpResponse.NoContent(res)
     } catch (err: any) {
-        console.error('Error en remove pickUpPoint:', err)
-        
         if (err.message === 'ID de punto de recogida inválido') {
             return HttpResponse.BadRequest(res, err.message)
         }
@@ -106,12 +97,10 @@ async function remove(req: Request, res: Response) {
 
 async function findByLocalty(req: Request, res: Response) {
     try {
-        const zipcode = req.params.zipcode
-        const pickUpPoints = await getPickUpPointsByLocalty(zipcode)
+        const localtyId = Number.parseInt(req.params.id)
+        const pickUpPoints = await getPickUpPointsByLocalty(localtyId)
         return HttpResponse.Ok(res, 'Puntos de recogida encontrados correctamente por localidad', pickUpPoints)
     } catch (err: any) {
-        console.error('Error en findByLocalty:', err)
-        
         if (err.message.includes('no existe')) {
             return HttpResponse.NotFound(res, err.message)
         }
@@ -129,8 +118,6 @@ async function findByProvince(req: Request, res: Response) {
         const pickUpPoints = await getPickUpPointsByProvince(provinceId)
         return HttpResponse.Ok(res, 'Puntos de recogida encontrados correctamente por provincia', pickUpPoints)
     } catch (err: any) {
-        console.error('Error en findByProvince:', err)
-        
         if (err.message === 'ID de provincia inválido') {
             return HttpResponse.BadRequest(res, err.message)
         }

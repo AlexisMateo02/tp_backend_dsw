@@ -19,7 +19,6 @@ async function findAll(req: Request, res: Response) {
 		const users = await getAllUsers()
 		return HttpResponse.Ok(res, 'Todos los usuarios fueron encontrados correctamente', users)
 	} catch (err: any) {
-		console.error('Error en findAll users:', err)
 		return HttpResponse.Error(res, 'Fallo al encontrar usuarios')
 	}
 }
@@ -30,8 +29,7 @@ async function findOne(req: Request, res: Response) {
 		const user = await getUserById(id)
 		return HttpResponse.Ok(res, 'Usuario encontrado correctamente', user)
 	} catch (err: any) {
-		console.error('Error en findOne user:', err)
-
+		
 		if (err.message === 'ID de usuario inválido') {
 			return HttpResponse.BadRequest(res, err.message)
 		}
@@ -48,8 +46,7 @@ async function add(req: Request, res: Response) {
 		const user = await createUser(userData)
 		return HttpResponse.Created(res, 'Usuario creado correctamente', user)
 	} catch (err: any) {
-		console.error('Error en add user:', err)
-
+		
 		if (err.message.includes('no existe')) {
 			return HttpResponse.NotFound(res, err.message)
 		}
@@ -67,8 +64,7 @@ async function update(req: Request, res: Response) {
 		const user = await updateUser(id, userData)
 		return HttpResponse.Ok(res, 'Usuario actualizado correctamente', user)
 	} catch (err: any) {
-		console.error('Error en update user:', err)
-
+		
 		if (err.message.includes('no existe')) {
 			return HttpResponse.NotFound(res, err.message)
 		}
@@ -91,8 +87,7 @@ async function remove(req: Request, res: Response) {
 		await deleteUser(id)
 		return HttpResponse.NoContent(res)
 	} catch (err: any) {
-		console.error('Error en remove user:', err)
-
+		
 		if (err.message === 'ID de usuario inválido') {
 			return HttpResponse.BadRequest(res, err.message)
 		}
@@ -113,8 +108,7 @@ async function findByEmail(req: Request, res: Response) {
 		const user = await getUserByEmail(email)
 		return HttpResponse.Ok(res, 'Usuario encontrado correctamente por email', user)
 	} catch (err: any) {
-		console.error('Error en findByEmail:', err)
-
+		
 		if (err.message.includes('no fue encontrado')) {
 			return HttpResponse.NotFound(res, err.message)
 		}
@@ -124,12 +118,11 @@ async function findByEmail(req: Request, res: Response) {
 
 async function findByLocalty(req: Request, res: Response) {
 	try {
-		const zipcode = req.params.zipcode
-		const users = await getUsersByLocalty(zipcode)
+		const id = Number.parseInt(req.params.id)
+		const users = await getUsersByLocalty(id)
 		return HttpResponse.Ok(res, 'Usuarios encontrados correctamente por localidad', users)
 	} catch (err: any) {
-		console.error('Error en findByLocalty:', err)
-
+		
 		if (err.message.includes('no existe')) {
 			return HttpResponse.NotFound(res, err.message)
 		}
@@ -143,7 +136,6 @@ async function getStats(req: Request, res: Response) {
 		const stats = await getUserStats(id)
 		return HttpResponse.Ok(res, 'Estadísticas del usuario obtenidas correctamente', stats)
 	} catch (err: any) {
-		console.error('Error en getStats:', err)
 
 		if (err.message === 'ID de usuario inválido') {
 			return HttpResponse.BadRequest(res, err.message)
@@ -161,8 +153,7 @@ async function getRatingsReceived(req: Request, res: Response) {
 		const ratings = await getUserRatingsReceived(id)
 		return HttpResponse.Ok(res, 'Ratings recibidos obtenidos correctamente', ratings)
 	} catch (err: any) {
-		console.error('Error en getRatingsReceived:', err)
-
+		
 		if (err.message === 'ID de usuario inválido') {
 			return HttpResponse.BadRequest(res, err.message)
 		}
@@ -179,8 +170,7 @@ async function getRatingsGiven(req: Request, res: Response) {
 		const ratings = await getUserRatingsGiven(id)
 		return HttpResponse.Ok(res, 'Ratings dados obtenidos correctamente', ratings)
 	} catch (err: any) {
-		console.error('Error en getRatingsGiven:', err)
-
+	
 		if (err.message === 'ID de usuario inválido') {
 			return HttpResponse.BadRequest(res, err.message)
 		}
@@ -197,8 +187,7 @@ async function incrementSells(req: Request, res: Response) {
 		const user = await incrementUserSells(id)
 		return HttpResponse.Ok(res, 'Ventas incrementadas correctamente', user)
 	} catch (err: any) {
-		console.error('Error en incrementSells:', err)
-
+	
 		if (err.message === 'ID de usuario inválido') {
 			return HttpResponse.BadRequest(res, err.message)
 		}

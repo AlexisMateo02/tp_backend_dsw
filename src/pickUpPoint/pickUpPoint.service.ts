@@ -1,6 +1,5 @@
 import { orm } from '../shared/dataBase/orm.js'
 import { validateId } from '../shared/utils/validationId.js'
-import { validateZipCode } from '../shared/utils/validationZipCode.js'
 import { PickUpPoint } from './pickUpPoint.entity.js'
 import { Localty } from '../localty/localty.entity.js'
 import { Publishment } from '../publishment/publishment.entity.js'
@@ -13,7 +12,7 @@ interface PickUpPointCreateData {
 	adressFloor?: number
 	adressApartment?: string
 	tower?: number
-	localty: string // zipcode de la localidad
+	localty: number // id de la localidad
 }
 
 interface PickUpPointUpdateData extends Partial<PickUpPointCreateData> {}
@@ -48,10 +47,10 @@ export async function getPickUpPointById(id: number) {
 
 export async function createPickUpPoint(pickUpPointData: PickUpPointCreateData) {
 	// Validar que la localidad existe
-	const localty = await entityManager.findOne(Localty, { zipcode: pickUpPointData.localty }, { populate: ['province'] })
+	const localty = await entityManager.findOne(Localty, { id: pickUpPointData.localty }, { populate: ['province'] })
 
 	if (!localty) {
-		throw new Error(`La localidad con código postal ${pickUpPointData.localty} no existe`)
+		throw new Error(`La localidad con ID ${pickUpPointData.localty} no existe`)
 	}
 
 	// Validar que no existe un punto de recogida con la misma dirección
@@ -88,12 +87,12 @@ export async function updatePickUpPoint(id: number, pickUpPointData: PickUpPoint
 	if (pickUpPointData.localty) {
 		const localty = await entityManager.findOne(
 			Localty,
-			{ zipcode: pickUpPointData.localty },
+			{ id: pickUpPointData.localty },
 			{ populate: ['province'] }
 		)
 
 		if (!localty) {
-			throw new Error(`La localidad con código postal ${pickUpPointData.localty} no existe`)
+			throw new Error(`La localidad con ID ${pickUpPointData.localty} no existe`)
 		}
 		updateData.localty = localty
 	}
@@ -145,12 +144,12 @@ export async function deletePickUpPoint(id: number) {
 }
 
 // Función adicional para buscar puntos de recogida por localidad
-export async function getPickUpPointsByLocalty(zipcode: string) {
-	validateZipCode(zipcode)
-	const localty = await entityManager.findOne(Localty, { zipcode })
+export async function getPickUpPointsByLocalty(id: number) {
+	validateId(id, 'localidad')
+	const localty = await entityManager.findOne(Localty, { id })
 
 	if (!localty) {
-		throw new Error(`La localidad con código postal ${zipcode} no existe`)
+		throw new Error(`La localidad con ID ${id} no existe`)
 	}
 
 	return await entityManager.find(

@@ -10,7 +10,7 @@ import {
 export const pickUpPointRouter = express.Router()
 
 pickUpPointRouter.get('/', controllerPickUpPoint.findAll)
-pickUpPointRouter.get('/localty/:zipcode', controllerPickUpPoint.findByLocalty)
+pickUpPointRouter.get('/localty/:localtyId', controllerPickUpPoint.findByLocalty)
 pickUpPointRouter.get('/province/:provinceId', controllerPickUpPoint.findByProvince)
 pickUpPointRouter.get('/:id', validateIdParam, controllerPickUpPoint.findOne)
 pickUpPointRouter.post('/', sanitizePickUpPointInput, validateCreateInput, controllerPickUpPoint.add)

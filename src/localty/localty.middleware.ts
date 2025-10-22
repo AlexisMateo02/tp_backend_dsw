@@ -24,6 +24,15 @@ function validateCreateInput(req: Request, res: Response, next: NextFunction) {
 	if (!input.name) return HttpResponse.BadRequest(res, 'El nombre es requerido')
 	if (!input.province) return HttpResponse.BadRequest(res, 'La provincia es requerida')
 
+	// Validación completa del zipcode (según validationZipCode.ts)
+	if (!input.zipcode || input.zipcode.trim().length === 0) {
+		return HttpResponse.BadRequest(res, 'El código postal es requerido')
+	}
+	const zipCodeRegex = /^[0-9]{4,5}$/
+	if (!zipCodeRegex.test(input.zipcode)) {
+		return HttpResponse.BadRequest(res, 'El código postal debe contener entre 4 y 5 dígitos numéricos')
+	}
+
 	// Validaciones para name
 	if (input.name.length < 2) {
 		return HttpResponse.BadRequest(res, 'El nombre debe tener al menos 2 caracteres')
@@ -46,6 +55,17 @@ function validateUpdateInput(req: Request, res: Response, next: NextFunction) {
 	const hasFields = Object.keys(input).some(key => input[key] !== undefined)
 	if (!hasFields) {
 		return HttpResponse.BadRequest(res, 'Se debe proporcionar al menos un campo para actualizar')
+	}
+
+	if (input.zipcode !== undefined) {
+		// Validación completa del zipcode (según validationZipCode.ts)
+		if (!input.zipcode || input.zipcode.trim().length === 0) {
+			return HttpResponse.BadRequest(res, 'El código postal es requerido')
+		}
+		const zipCodeRegex = /^[0-9]{4,5}$/
+		if (!zipCodeRegex.test(input.zipcode)) {
+			return HttpResponse.BadRequest(res, 'El código postal debe contener entre 4 y 5 dígitos numéricos')
+		}
 	}
 
 	if (input.name !== undefined) {

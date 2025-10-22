@@ -19,7 +19,7 @@ router.delete('/:id', validateIdParam, controllerUser.remove)
 
 // Rutas adicionales
 router.get('/email/:email', validateEmailParam, controllerUser.findByEmail)
-router.get('/localty/:zipcode', controllerUser.findByLocalty)
+router.get('/localty/:localtyId', controllerUser.findByLocalty)
 router.get('/:id/stats', validateIdParam, controllerUser.getStats)
 router.get('/:id/ratings/received', validateIdParam, controllerUser.getRatingsReceived)
 router.get('/:id/ratings/given', validateIdParam, controllerUser.getRatingsGiven)

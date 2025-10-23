@@ -28,9 +28,6 @@ export class User extends BaseEntity {
 	// @Property({ nullable: false })
 	// role!: string
 
-	@ManyToOne(() => Localty, { nullable: false })
-	localty!: Rel<Localty>
-
 	@OneToMany(() => Purchase, purchase => purchase.user, { cascade: [Cascade.ALL], nullable: true })
 	purchases!: Rel<Purchase[]>
 

@@ -12,10 +12,6 @@ GET http://localhost:3000/api/users/{{idToGet}}
 ### Obtener un usuario por email
 GET http://localhost:3000/api/users/email/test@example.com
 
-### GET BY LOCALTY
-### Obtener usuarios por localidad
-GET http://localhost:3000/api/users/localty/2000
-
 ### GET STATS
 ### Obtener estadísticas de un usuario
 GET http://localhost:3000/api/users/{{idToGet}}/stats
@@ -38,7 +34,6 @@ Content-Type: application/json
     "lastName": "Pérez",
     "email": "juan.perez@example.com",
     "password": "password123",
-    "localty": "2000"
 }
 
 ### POST 2
@@ -51,7 +46,6 @@ Content-Type: application/json
     "lastName": "Gómez",
     "email": "maria.gomez@example.com",
     "password": "password123",
-    "localty": "2132"
 }
 
 ### POST 3
@@ -64,7 +58,6 @@ Content-Type: application/json
     "lastName": "López",
     "email": "carlos.lopez@example.com",
     "password": "password123",
-    "localty": "2134"
 }
 
 ### POST 4
@@ -76,7 +69,6 @@ Content-Type: application/json
     "lastName": "Martínez",
     "email": "ana.martinez@example.com",
     "password": "password123",
-    "localty": "2000"
 }
 
 ### POST 5
@@ -89,7 +81,6 @@ Content-Type: application/json
     "lastName": "Rodríguez",
     "email": "pedro.rodriguez@example.com",
     "password": "password123",
-    "localty": "2121"
 }
 
 ### UPDATE

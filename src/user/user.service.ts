@@ -2,7 +2,6 @@ import { orm } from '../shared/dataBase/orm.js'
 import { validateId } from '../shared/utils/validationId.js'
 import bcrypt from 'bcrypt'
 import { User } from './user.entity.js'
-import { Localty } from '../localty/localty.entity.js'
 import { Purchase } from '../purchase/purchase.entity.js'
 import { Publishment } from '../publishment/publishment.entity.js'
 import { Rating } from '../rating/rating.entity.js'
@@ -15,7 +14,6 @@ interface UserCreateData {
 	lastName: string
 	email: string
 	password: string
-	localty: number // id de la localidad
 	sellsQuantity?: number
 	sellerType?: string
 }
@@ -31,7 +29,6 @@ interface UserResponse {
 	email: string
 	sellsQuantity?: number
 	sellerType?: string
-	localty: any
 }
 
 // Función para hashear password
@@ -46,7 +43,6 @@ function sanitizeUserResponse(user: User): UserResponse {
 		firstName: user.firstName,
 		lastName: user.lastName,
 		email: user.email,
-		localty: user.localty,
 	}
 
 	if (user.sellsQuantity !== undefined) response.sellsQuantity = user.sellsQuantity
@@ -69,7 +65,6 @@ export async function getAllUsers() {
 		User,
 		{},
 		{
-			populate: ['localty'],
 			orderBy: { lastName: 'ASC', firstName: 'ASC' },
 		}
 	)
@@ -78,13 +73,7 @@ export async function getAllUsers() {
 
 export async function getUserById(id: number) {
 	validateId(id, 'usuario')
-	const user = await entityManager.findOne(
-		User,
-		{ id },
-		{
-			populate: ['localty'],
-		}
-	)
+	const user = await entityManager.findOne(User, { id })
 	if (!user) {
 		throw new Error(`El usuario con el ID ${id} no fue encontrado`)
 	}
@@ -97,7 +86,7 @@ export async function getUserWithSensitiveData(id: number): Promise<User> {
 		User,
 		{ id },
 		{
-			populate: ['localty', 'purchases', 'publishments', 'ratingsGiven', 'ratingsReceived'],
+			populate: ['purchases', 'publishments', 'ratingsGiven', 'ratingsReceived'],
 		}
 	)
 	if (!user) {
@@ -107,11 +96,6 @@ export async function getUserWithSensitiveData(id: number): Promise<User> {
 }
 
 export async function createUser(userData: UserCreateData) {
-	// Validar que la localidad existe
-	const localty = await entityManager.findOne(Localty, { id: userData.localty })
-	if (!localty) {
-		throw new Error(`La localidad con ID ${userData.localty} no existe`)
-	}
 	// Validar que un usuario con el email ingresado no existe
 	const existingUser = await entityManager.findOne(User, { email: userData.email.toLowerCase() })
 	if (existingUser) {
@@ -130,7 +114,6 @@ export async function createUser(userData: UserCreateData) {
 	user.lastName = userData.lastName
 	user.email = userData.email.toLowerCase()
 	user.password = hashedPassword
-	user.localty = localty
 	user.sellsQuantity = sellsQuantity
 	user.sellerType = sellerType
 
@@ -140,15 +123,6 @@ export async function createUser(userData: UserCreateData) {
 
 export async function updateUser(id: number, userData: UserUpdateData) {
 	const user = await getUserWithSensitiveData(id)
-
-	// Validar localidad si se proporciona
-	if (userData.localty) {
-		const localty = await entityManager.findOne(Localty, { id: userData.localty })
-		if (!localty) {
-			throw new Error(`La localidad con ID ${userData.localty} no existe`)
-		}
-		user.localty = localty
-	}
 
 	// Validar email si se proporciona
 	if (userData.email && userData.email !== user.email) {
@@ -206,7 +180,7 @@ export async function deleteUser(id: number) {
 
 // Funciones adicionales específicas para User
 export async function getUserByEmail(email: string) {
-	const user = await entityManager.findOne(User, { email: email.toLowerCase() }, { populate: ['localty'] })
+	const user = await entityManager.findOne(User, { email: email.toLowerCase() })
 
 	if (!user) {
 		throw new Error(`El usuario con email ${email} no fue encontrado`)
@@ -255,24 +229,6 @@ export async function getUserStats(id: number) {
 			sellerType: user.sellerType || 'Nuevo',
 		},
 	}
-}
-
-export async function getUsersByLocalty(id: number) {
-	const localty = await entityManager.findOne(Localty, { id })
-	if (!localty) {
-		throw new Error(`La localidad con ID ${id} no existe`)
-	}
-
-	const users = await entityManager.find(
-		User,
-		{ localty },
-		{
-			populate: ['localty'],
-			orderBy: { lastName: 'ASC' },
-		}
-	)
-
-	return users.map(sanitizeUserResponse)
 }
 
 // Función para incrementar sellsQuantity automáticamente

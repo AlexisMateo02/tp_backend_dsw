@@ -17,14 +17,6 @@ function sanitizeUserInput(req: Request, res: Response, next: NextFunction) {
 	if (typeof req.body.password === 'string') {
 		sanitizedInput.password = req.body.password
 	}
-	
-	// Sanitizar localty como número (ID)
-	if (req.body.localty !== undefined && req.body.localty !== null && req.body.localty !== '') {
-		const localty = Number(req.body.localty)
-		if (!isNaN(localty)) {
-			sanitizedInput.localty = localty
-		}
-	}
 
 	// Sanitizar números
 	if (req.body.sellsQuantity !== undefined && req.body.sellsQuantity !== null && req.body.sellsQuantity !== '') {
@@ -58,9 +50,6 @@ function validateCreateInput(req: Request, res: Response, next: NextFunction) {
 	}
 	if (!input.password) {
 		return HttpResponse.BadRequest(res, 'La contraseña es requerida')
-	}
-	if (!input.localty) {
-		return HttpResponse.BadRequest(res, 'La localidad es requerida')
 	}
 
 	// Validaciones para firstName
@@ -177,13 +166,6 @@ function validateUpdateInput(req: Request, res: Response, next: NextFunction) {
 		}
 		if (input.password.length > 100) {
 			return HttpResponse.BadRequest(res, 'La contraseña no puede exceder los 100 caracteres')
-		}
-	}
-
-	// Validaciones para localty (si se proporciona) - ahora es un ID
-	if (input.localty !== undefined) {
-		if (isNaN(input.localty) || input.localty <= 0) {
-			return HttpResponse.BadRequest(res, 'La localidad debe ser un ID válido')
 		}
 	}
 

@@ -2,7 +2,6 @@ import { orm } from '../shared/dataBase/orm.js'
 import { validateId } from '../shared/utils/validationId.js'
 import { Localty } from './localty.entity.js'
 import { Province } from '../province/province.entity.js'
-import { User } from '../user/user.entity.js'
 import { PickUpPoint } from '../pickUpPoint/pickUpPoint.entity.js'
 
 const entityManager = orm.em
@@ -10,7 +9,7 @@ const entityManager = orm.em
 interface LocaltyCreateData {
 	zipcode: string
 	name: string
-	province: number // ID de la provincia
+	province: number
 }
 
 interface LocaltyUpdateData extends Partial<LocaltyCreateData> {}
@@ -51,7 +50,7 @@ export async function createLocalty(localtyData: LocaltyCreateData) {
 	const localty = entityManager.create(Localty, {
 		zipcode: localtyData.zipcode,
 		name: localtyData.name,
-		province: province, // Pasamos la entidad, no solo el ID
+		province: province,
 	})
 
 	await entityManager.flush()
@@ -101,12 +100,6 @@ export async function updateLocalty(id: number, localtyData: LocaltyUpdateData) 
 
 export async function deleteLocalty(id: number) {
 	const localty = await getLocaltyById(id)
-
-	// Verificar usuarios asociados
-	const userCount = await entityManager.count(User, { localty })
-	if (userCount > 0) {
-		throw new Error(`Existen ${userCount} usuario${userCount > 1 ? 's' : ''} asociados a esta localidad`)
-	}
 
 	// Verificar puntos de recogida asociados
 	const pickUpPointCount = await entityManager.count(PickUpPoint, { localty })

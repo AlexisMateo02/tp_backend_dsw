@@ -4,7 +4,7 @@ import { HttpResponse } from '../shared/errors/errorManager.js'
 function sanitizeLocaltyInput(req: Request, res: Response, next: NextFunction) {
 	req.body.sanitizedInput = {
 		zipcode: typeof req.body.zipcode === 'string' ? req.body.zipcode.trim().replace(/\s+/g, '') : undefined,
-		name: typeof req.body.name === 'string' ? req.body.name.trim().toUpperCase() : undefined,
+		name: typeof req.body.name === 'string' ? req.body.name.trim() : undefined, //.toUpperCase() : undefined,
 		province: req.body.province !== undefined ? Number(req.body.province) : undefined,
 	}
 
@@ -58,7 +58,6 @@ function validateUpdateInput(req: Request, res: Response, next: NextFunction) {
 	}
 
 	if (input.zipcode !== undefined) {
-		// Validación completa del zipcode (según validationZipCode.ts)
 		if (!input.zipcode || input.zipcode.trim().length === 0) {
 			return HttpResponse.BadRequest(res, 'El código postal es requerido')
 		}

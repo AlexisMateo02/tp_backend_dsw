@@ -34,7 +34,7 @@ async function add(req: Request, res: Response) {
 		return HttpResponse.Created(res, 'Localidad creada correctamente', localty)
 	} catch (err: any) {
 		if (err.message.includes('ya existe')) {
-			return HttpResponse.DuplicateEntry(res, err.message)
+			return HttpResponse.Conflict(res, err.message)
 		}
 		if (err.message.includes('no existe')) {
 			return HttpResponse.NotFound(res, err.message)
@@ -54,7 +54,7 @@ async function update(req: Request, res: Response) {
 			return HttpResponse.BadRequest(res, err.message)
 		}
 		if (err.message.includes('ya existe')) {
-			return HttpResponse.DuplicateEntry(res, err.message)
+			return HttpResponse.Conflict(res, err.message)
 		}
 		if (err.message.includes('no fue encontrada')) {
 			return HttpResponse.NotFound(res, err.message)
@@ -79,7 +79,7 @@ async function remove(req: Request, res: Response) {
 			return HttpResponse.NotFound(res, err.message)
 		}
 		if (err.message.includes('asociados a esta localidad')) {
-			return HttpResponse.DuplicateEntry(res, err.message)
+			return HttpResponse.Conflict(res, err.message)
 		}
 		return HttpResponse.Error(res, 'Fallo al eliminar localidad')
 	}

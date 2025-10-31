@@ -40,7 +40,7 @@ async function add(req: Request, res: Response) {
 		return HttpResponse.Created(res, 'Tipo de artículo creado correctamente', articleType)
 	} catch (err: any) {
 		if (err.message.includes('ya existe')) {
-			return HttpResponse.DuplicateEntry(res, err.message)
+			return HttpResponse.Conflict(res, err.message)
 		}
 		return HttpResponse.Error(res, 'Fallo al crear tipo de artículo')
 	}
@@ -54,7 +54,7 @@ async function update(req: Request, res: Response) {
 		return HttpResponse.Ok(res, 'Tipo de artículo actualizado correctamente', articleType)
 	} catch (err: any) {
 		if (err.message.includes('ya existe')) {
-			return HttpResponse.DuplicateEntry(res, err.message)
+			return HttpResponse.Conflict(res, err.message)
 		}
 		if (err.message === 'ID de tipo de artículo inválido') {
 			return HttpResponse.BadRequest(res, err.message)
@@ -79,7 +79,7 @@ async function remove(req: Request, res: Response) {
 			return HttpResponse.NotFound(res, err.message)
 		}
 		if (err.message.includes('categoriza')) {
-			return HttpResponse.DuplicateEntry(res, err.message)
+			return HttpResponse.Conflict(res, err.message)
 		}
 		return HttpResponse.Error(res, 'Fallo al eliminar tipo de artículo')
 	}

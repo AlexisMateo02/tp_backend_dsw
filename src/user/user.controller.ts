@@ -3,14 +3,12 @@ import { HttpResponse } from '../shared/errors/errorManager.js'
 import {
 	getAllUsers,
 	getUserById,
-	createUser,
-	updateUser,
-	deleteUser,
 	getUserByEmail,
-	getUserStats,
-	getUserRatingsReceived,
-	getUserRatingsGiven,
-	incrementUserSells,
+	createUser,
+	registerSeller,
+	updateUser,
+	verifySeller,
+	deleteUser,
 } from './user.service.js'
 
 async function findAll(req: Request, res: Response) {
@@ -38,16 +36,42 @@ async function findOne(req: Request, res: Response) {
 	}
 }
 
-async function add(req: Request, res: Response) {
+async function findByEmail(req: Request, res: Response) {
+	try {
+		const email = req.params.email
+		const user = await getUserByEmail(email)
+		return HttpResponse.Ok(res, 'Usuario encontrado correctamente', user)
+	} catch (err: any) {
+		if (err.message.includes('no fue encontrado')) {
+			return HttpResponse.NotFound(res, err.message)
+		}
+		return HttpResponse.Error(res, 'Fallo al encontrar usuario')
+	}
+}
+
+async function register(req: Request, res: Response) {
 	try {
 		const userData = req.body.sanitizedInput
 		const user = await createUser(userData)
-		return HttpResponse.Created(res, 'Usuario creado correctamente', user)
+		return HttpResponse.Created(res, 'Usuario registrado correctamente', user)
 	} catch (err: any) {
-		if (err.message.includes('Ya existe')) {
-			return HttpResponse.DuplicateEntry(res, err.message)
+		if (err.message.includes('ya está registrado')) {
+			return HttpResponse.Conflict(res, err.message)
 		}
-		return HttpResponse.Error(res, 'Fallo al crear usuario')
+		return HttpResponse.Error(res, 'Fallo al registrar usuario')
+	}
+}
+
+async function registerAsSellerHandler(req: Request, res: Response) {
+	try {
+		const sellerData = req.body.sanitizedInput
+		const seller = await registerSeller(sellerData)
+		return HttpResponse.Created(res, 'Vendedor registrado correctamente', seller)
+	} catch (err: any) {
+		if (err.message.includes('ya está registrado')) {
+			return HttpResponse.Conflict(res, err.message)
+		}
+		return HttpResponse.Error(res, 'Fallo al registrar vendedor')
 	}
 }
 
@@ -58,19 +82,35 @@ async function update(req: Request, res: Response) {
 		const user = await updateUser(id, userData)
 		return HttpResponse.Ok(res, 'Usuario actualizado correctamente', user)
 	} catch (err: any) {
-		if (err.message.includes('no existe')) {
+		if (err.message === 'ID de usuario inválido') {
+			return HttpResponse.BadRequest(res, err.message)
+		}
+		if (err.message.includes('ya está registrado')) {
+			return HttpResponse.Conflict(res, err.message)
+		}
+		if (err.message.includes('no fue encontrado')) {
 			return HttpResponse.NotFound(res, err.message)
 		}
+		return HttpResponse.Error(res, 'Fallo al actualizar usuario')
+	}
+}
+
+async function verify(req: Request, res: Response) {
+	try {
+		const id = Number.parseInt(req.params.id)
+		const seller = await verifySeller(id)
+		return HttpResponse.Ok(res, 'Vendedor verificado correctamente', seller)
+	} catch (err: any) {
 		if (err.message === 'ID de usuario inválido') {
+			return HttpResponse.BadRequest(res, err.message)
+		}
+		if (err.message === 'El usuario no es un vendedor') {
 			return HttpResponse.BadRequest(res, err.message)
 		}
 		if (err.message.includes('no fue encontrado')) {
 			return HttpResponse.NotFound(res, err.message)
 		}
-		if (err.message.includes('Ya existe')) {
-			return HttpResponse.DuplicateEntry(res, err.message)
-		}
-		return HttpResponse.Error(res, 'Fallo al actualizar usuario')
+		return HttpResponse.Error(res, 'Fallo al verificar vendedor')
 	}
 }
 
@@ -86,100 +126,20 @@ async function remove(req: Request, res: Response) {
 		if (err.message.includes('no fue encontrado')) {
 			return HttpResponse.NotFound(res, err.message)
 		}
-		if (err.message.includes('publicaciones activas') || err.message.includes('compras pendientes')) {
-			return HttpResponse.DuplicateEntry(res, err.message)
+		if (err.message.includes('orden') || err.message.includes('producto')) {
+			return HttpResponse.Conflict(res, err.message)
 		}
 		return HttpResponse.Error(res, 'Fallo al eliminar usuario')
-	}
-}
-
-// Controladores para las funciones adicionales
-async function findByEmail(req: Request, res: Response) {
-	try {
-		const email = req.params.email
-		const user = await getUserByEmail(email)
-		return HttpResponse.Ok(res, 'Usuario encontrado correctamente por email', user)
-	} catch (err: any) {
-		if (err.message.includes('no fue encontrado')) {
-			return HttpResponse.NotFound(res, err.message)
-		}
-		return HttpResponse.Error(res, 'Fallo al buscar usuario por email')
-	}
-}
-
-async function getStats(req: Request, res: Response) {
-	try {
-		const id = Number.parseInt(req.params.id)
-		const stats = await getUserStats(id)
-		return HttpResponse.Ok(res, 'Estadísticas del usuario obtenidas correctamente', stats)
-	} catch (err: any) {
-		if (err.message === 'ID de usuario inválido') {
-			return HttpResponse.BadRequest(res, err.message)
-		}
-		if (err.message.includes('no fue encontrado')) {
-			return HttpResponse.NotFound(res, err.message)
-		}
-		return HttpResponse.Error(res, 'Fallo al obtener estadísticas del usuario')
-	}
-}
-
-async function getRatingsReceived(req: Request, res: Response) {
-	try {
-		const id = Number.parseInt(req.params.id)
-		const ratings = await getUserRatingsReceived(id)
-		return HttpResponse.Ok(res, 'Ratings recibidos obtenidos correctamente', ratings)
-	} catch (err: any) {
-		if (err.message === 'ID de usuario inválido') {
-			return HttpResponse.BadRequest(res, err.message)
-		}
-		if (err.message.includes('no fue encontrado')) {
-			return HttpResponse.NotFound(res, err.message)
-		}
-		return HttpResponse.Error(res, 'Fallo al obtener ratings recibidos')
-	}
-}
-
-async function getRatingsGiven(req: Request, res: Response) {
-	try {
-		const id = Number.parseInt(req.params.id)
-		const ratings = await getUserRatingsGiven(id)
-		return HttpResponse.Ok(res, 'Ratings dados obtenidos correctamente', ratings)
-	} catch (err: any) {
-		if (err.message === 'ID de usuario inválido') {
-			return HttpResponse.BadRequest(res, err.message)
-		}
-		if (err.message.includes('no fue encontrado')) {
-			return HttpResponse.NotFound(res, err.message)
-		}
-		return HttpResponse.Error(res, 'Fallo al obtener ratings dados')
-	}
-}
-
-async function incrementSells(req: Request, res: Response) {
-	try {
-		const id = Number.parseInt(req.params.id)
-		const user = await incrementUserSells(id)
-		return HttpResponse.Ok(res, 'Ventas incrementadas correctamente', user)
-	} catch (err: any) {
-		if (err.message === 'ID de usuario inválido') {
-			return HttpResponse.BadRequest(res, err.message)
-		}
-		if (err.message.includes('no fue encontrado')) {
-			return HttpResponse.NotFound(res, err.message)
-		}
-		return HttpResponse.Error(res, 'Fallo al incrementar ventas')
 	}
 }
 
 export const controllerUser = {
 	findAll,
 	findOne,
-	add,
-	update,
-	remove,
 	findByEmail,
-	getStats,
-	getRatingsReceived,
-	getRatingsGiven,
-	incrementSells,
+	register,
+	registerAsSellerHandler,
+	update,
+	verify,
+	remove,
 }

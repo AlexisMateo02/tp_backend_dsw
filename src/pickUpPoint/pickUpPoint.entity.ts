@@ -1,27 +1,38 @@
-import { Entity, Property, OneToMany, Rel, Cascade, ManyToOne } from '@mikro-orm/core'
+import { Entity, Property, ManyToOne, Rel } from '@mikro-orm/core'
 import { BaseEntity } from '../shared/dataBase/baseEntity.js'
-import { Publishment } from '../publishment/publishment.entity.js'
 import { Localty } from '../localty/localty.entity.js'
 
 @Entity()
 export class PickUpPoint extends BaseEntity {
 	@Property({ nullable: false })
-	adressStreet!: string
+	name!: string
 
-	@Property({ type: 'int', nullable: false })
-	adressnumber!: number
-
-	@Property({ type: 'int', nullable: true })
-	adressFloor?: number
+	@Property({ nullable: false })
+	address!: string
 
 	@Property({ nullable: true })
-	adressApartment?: string
+	phone?: string
 
-	@Property({ type: 'int', nullable: true })
-	tower?: number
+	@Property({ nullable: true })
+	email?: string
 
-	@OneToMany(() => Publishment, publishment => publishment.pickUpPoint, { cascade: [], nullable: true })
-	publishments?: Rel<Publishment[]>
+	@Property({ nullable: true, type: 'text' })
+	description?: string
+
+	@Property({ nullable: true })
+	openingHours?: string // Ej: "Lun-Vie: 9:00-18:00"
+
+	@Property({ nullable: true, type: 'text' })
+	imageUrl?: string
+
+	@Property({ type: 'float', nullable: true })
+	latitude?: number
+
+	@Property({ type: 'float', nullable: true })
+	longitude?: number
+
+	@Property({ type: 'boolean', nullable: false, default: true })
+	active: boolean = true
 
 	@ManyToOne(() => Localty, { nullable: false })
 	localty!: Rel<Localty>

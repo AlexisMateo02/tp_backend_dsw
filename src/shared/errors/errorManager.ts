@@ -42,7 +42,7 @@ const NotFound = (res: Response, message: string = 'Resource not found') => {
 	res.status(HttpStatus.NOT_FOUND).json({ status: HttpStatus.NOT_FOUND, message })
 }
 
-const DuplicateEntry = (res: Response, message: string = 'Duplicate entry') => {
+const Conflict = (res: Response, message: string = 'Duplicate entry') => {
 	res.status(HttpStatus.DUPLICATE_ENTRY).json({ status: HttpStatus.DUPLICATE_ENTRY, message })
 }
 
@@ -58,6 +58,6 @@ export const HttpResponse = {
 	Unauthorized,
 	Forbidden,
 	NotFound,
-	DuplicateEntry,
+	Conflict,
 	Error,
 }

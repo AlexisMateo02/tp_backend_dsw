@@ -28,25 +28,21 @@ export async function getLocaltyById(id: number) {
 }
 
 export async function createLocalty(localtyData: LocaltyCreateData) {
-	// Validar código postal único
 	const existingLocalty = await entityManager.findOne(Localty, { zipcode: localtyData.zipcode })
 	if (existingLocalty) {
 		throw new Error(`La localidad con código postal ${localtyData.zipcode} ya existe`)
 	}
 
-	// Validar nombre único
 	const existingName = await entityManager.findOne(Localty, { name: localtyData.name })
 	if (existingName) {
 		throw new Error(`La localidad '${localtyData.name}' ya existe`)
 	}
 
-	// Obtener la entidad Province completa, no solo el ID
 	const province = await entityManager.findOne(Province, { id: localtyData.province })
 	if (!province) {
 		throw new Error(`La provincia con ID ${localtyData.province} no existe`)
 	}
 
-	// Crear la localidad asignando la entidad Province completa
 	const localty = entityManager.create(Localty, {
 		zipcode: localtyData.zipcode,
 		name: localtyData.name,
@@ -60,7 +56,6 @@ export async function createLocalty(localtyData: LocaltyCreateData) {
 export async function updateLocalty(id: number, localtyData: LocaltyUpdateData) {
 	const localty = await getLocaltyById(id)
 
-	// Validar código postal único si se está actualizando
 	if (localtyData.zipcode && localtyData.zipcode !== localty.zipcode) {
 		const existingZipCode = await entityManager.findOne(Localty, { zipcode: localtyData.zipcode })
 		if (existingZipCode) {
@@ -68,15 +63,13 @@ export async function updateLocalty(id: number, localtyData: LocaltyUpdateData) 
 		}
 	}
 
-	// Validar nombre único si se está actualizando
 	if (localtyData.name && localtyData.name !== localty.name) {
 		const existingName = await entityManager.findOne(Localty, { name: localtyData.name })
 		if (existingName) {
-			throw new Error(`La localidad'${localtyData.name}' ya existe`)
+			throw new Error(`La localidad '${localtyData.name}' ya existe`)
 		}
 	}
 
-	// Si se actualiza la provincia, obtener la entidad completa
 	if (localtyData.province) {
 		const province = await entityManager.findOne(Province, { id: localtyData.province })
 		if (!province) {
@@ -101,7 +94,6 @@ export async function updateLocalty(id: number, localtyData: LocaltyUpdateData) 
 export async function deleteLocalty(id: number) {
 	const localty = await getLocaltyById(id)
 
-	// Verificar puntos de recogida asociados
 	const pickUpPointCount = await entityManager.count(PickUpPoint, { localty })
 	if (pickUpPointCount > 0) {
 		throw new Error(

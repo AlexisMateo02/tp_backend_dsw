@@ -34,7 +34,7 @@ async function add(req: Request, res: Response) {
 		return HttpResponse.Created(res, 'Provincia creada correctamente', province)
 	} catch (err: any) {
 		if (err.message.includes('ya existe')) {
-			return HttpResponse.DuplicateEntry(res, err.message)
+			return HttpResponse.Conflict(res, err.message)
 		}
 		return HttpResponse.Error(res, 'Fallo al crear provincia')
 	}
@@ -48,12 +48,12 @@ async function update(req: Request, res: Response) {
 		return HttpResponse.Ok(res, 'Provincia actualizada correctamente', province)
 	} catch (err: any) {
 		if (err.message.includes('ya existe')) {
-			return HttpResponse.DuplicateEntry(res, err.message)
+			return HttpResponse.Conflict(res, err.message)
 		}
 		if (err.message === 'ID de provincia inválido') {
 			return HttpResponse.BadRequest(res, err.message)
 		}
-		if (err.message.includes('no fue encontrado')) {
+		if (err.message.includes('no fue encontrada')) {
 			return HttpResponse.NotFound(res, err.message)
 		}
 		return HttpResponse.Error(res, 'Fallo al actualizar provincia')
@@ -73,7 +73,7 @@ async function remove(req: Request, res: Response) {
 			return HttpResponse.NotFound(res, err.message)
 		}
 		if (err.message.includes('se ubican')) {
-			return HttpResponse.DuplicateEntry(res, err.message)
+			return HttpResponse.Conflict(res, err.message)
 		}
 		return HttpResponse.Error(res, 'Fallo al eliminar provincia')
 	}

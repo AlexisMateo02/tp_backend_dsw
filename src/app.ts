@@ -8,9 +8,13 @@ import { config } from './config.js'
 import { articleTypeRouter } from './articleType/articleType.routes.js'
 import { provinceRouter } from './province/province.routes.js'
 import { localtyrouter } from './localty/localty.routes.js'
-import { productRouter } from './product/product.routes.js'
 import { kayakTypeRouter } from './kayakType/kayakType.routes.js'
 import { pickUpPointRouter } from './pickUpPoint/pickUpPoint.routes.js'
+import { supTypeRouter } from './supType/supType.routes.js'
+import { boatTypeRouter } from './boatType/boatType.routes.js'
+import { productRouter } from './product/product.routes.js'
+import { orderRouter } from './order/order.routes.js'
+import { reviewRouter } from './review/review.routes.js'
 
 //! Middlewares globales
 const app = express()
@@ -34,8 +38,12 @@ app.use('/api/articleTypes', articleTypeRouter)
 app.use('/api/provinces', provinceRouter)
 app.use('/api/localties', localtyrouter)
 app.use('/api/kayakTypes', kayakTypeRouter)
-app.use('/api/products', productRouter)
 app.use('/api/pickUpPoints', pickUpPointRouter)
+app.use('/api/supTypes', supTypeRouter)
+app.use('/api/boatTypes', boatTypeRouter)
+app.use('/api/products', productRouter)
+app.use('/api/orders', orderRouter)
+app.use('/api/reviews', reviewRouter)
 // Rutas para Autenticación
 
 app.use((_, res) => {

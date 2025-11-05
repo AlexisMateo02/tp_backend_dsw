@@ -6,7 +6,6 @@ import { Product } from '../product/product.entity.js'
 
 export enum UserRole {
 	CUSTOMER = 'customer',
-	SELLER = 'seller',
 	ADMIN = 'admin',
 }
 
@@ -30,39 +29,6 @@ export class User extends BaseEntity {
 	@Enum(() => UserRole)
 	role: UserRole = UserRole.CUSTOMER
 
-	@Property({ nullable: true })
-	address?: string
-
-	@Property({ nullable: true })
-	city?: string
-
-	@Property({ nullable: true })
-	postalCode?: string
-
-	//! Campos de Seller
-	@Property({ nullable: true })
-	businessName?: string
-
-	@Property({ nullable: true, type: 'text' })
-	businessDescription?: string
-
-	@Property({ nullable: true })
-	businessAddress?: string
-
-	@Property({ nullable: true, type: 'text' })
-	logo?: string
-
-	@Property({ type: 'float', nullable: true, default: 5.0 })
-	sellerRating?: number
-
-	@Property({ type: 'int', nullable: true, default: 0 })
-	totalReviews?: number
-
-	@Property({ type: 'boolean', nullable: true, default: false })
-	verified?: boolean
-
-	@Property({ nullable: true })
-	joinedAsSellerDate?: Date
 
 	//! Relaciones
 	@OneToMany(() => Order, order => order.user, { cascade: [Cascade.ALL] })

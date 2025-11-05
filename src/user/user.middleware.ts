@@ -10,14 +10,6 @@ function sanitizeUserInput(req: Request, res: Response, next: NextFunction) {
     password: typeof req.body.password === 'string' ? req.body.password : undefined,
     phone: typeof req.body.phone === 'string' ? req.body.phone.trim() : undefined,
     role: req.body.role as UserRole,
-    address: typeof req.body.address === 'string' ? req.body.address.trim() : undefined,
-    city: typeof req.body.city === 'string' ? req.body.city.trim() : undefined,
-    postalCode: typeof req.body.postalCode === 'string' ? req.body.postalCode.trim() : undefined,
-    // Campos específicos de seller
-    businessName: typeof req.body.businessName === 'string' ? req.body.businessName.trim() : undefined,
-    businessDescription: typeof req.body.businessDescription === 'string' ? req.body.businessDescription.trim() : undefined,
-    businessAddress: typeof req.body.businessAddress === 'string' ? req.body.businessAddress.trim() : undefined,
-    logo: typeof req.body.logo === 'string' ? req.body.logo.trim() : undefined,
   }
 
   // Eliminar campos undefined
@@ -146,34 +138,8 @@ function validateUpdateInput(req: Request, res: Response, next: NextFunction) {
   next()
 }
 
-// Middleware específico para registro de seller
-function validateSellerRegistration(req: Request, res: Response, next: NextFunction) {
-  const input = req.body.sanitizedInput
-
-  // Validar campos requeridos para seller
-  if (!input.businessName) return HttpResponse.BadRequest(res, 'El nombre del negocio es requerido')
-  if (!input.businessAddress) return HttpResponse.BadRequest(res, 'La dirección del negocio es requerida')
-  if (!input.phone) return HttpResponse.BadRequest(res, 'El teléfono es requerido para vendedores')
-
-  // Validaciones para businessName
-  if (input.businessName.length < 2) {
-    return HttpResponse.BadRequest(res, 'El nombre del negocio debe tener al menos 2 caracteres')
-  }
-  if (input.businessName.length > 100) {
-    return HttpResponse.BadRequest(res, 'El nombre del negocio no puede exceder los 100 caracteres')
-  }
-
-  // Validaciones para businessAddress
-  if (input.businessAddress.length < 5) {
-    return HttpResponse.BadRequest(res, 'La dirección del negocio debe tener al menos 5 caracteres')
-  }
-
-  next()
-}
-
 export { 
   sanitizeUserInput, 
   validateCreateInput, 
-  validateUpdateInput, 
-  validateSellerRegistration 
+  validateUpdateInput
 }

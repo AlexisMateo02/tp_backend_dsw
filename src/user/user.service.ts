@@ -2,7 +2,6 @@ import { orm } from '../shared/dataBase/orm.js'
 import { validateId } from '../shared/utils/validationId.js'
 import { User, UserRole } from './user.entity.js'
 import { Order } from '../order/order.entity.js'
-import { Product } from '../product/product.entity.js'
 import * as bcrypt from 'bcrypt'
 
 const entityManager = orm.em
@@ -17,21 +16,7 @@ interface UserCreateData {
 }
 
 interface UserUpdateData extends Partial<Omit<UserCreateData, 'password'>> {
-	address?: string
-	city?: string
-	postalCode?: string
-}
-
-interface SellerRegistrationData {
-	firstName: string
-	lastName: string
-	email: string
-	password: string
-	phone: string
-	businessName: string
-	businessDescription?: string
-	businessAddress: string
-	logo?: string
+	password?: string
 }
 
 export async function getAllUsers() {
@@ -73,35 +58,6 @@ export async function createUser(userData: UserCreateData) {
 	return user
 }
 
-export async function registerSeller(sellerData: SellerRegistrationData) {
-	const existingUser = await entityManager.findOne(User, { email: sellerData.email })
-	if (existingUser) {
-		throw new Error(`El email '${sellerData.email}' ya está registrado`)
-	}
-
-	const hashedPassword = await bcrypt.hash(sellerData.password, 10)
-
-	const seller = entityManager.create(User, {
-		firstName: sellerData.firstName,
-		lastName: sellerData.lastName,
-		email: sellerData.email,
-		password: hashedPassword,
-		phone: sellerData.phone,
-		role: UserRole.SELLER,
-		businessName: sellerData.businessName,
-		businessDescription: sellerData.businessDescription,
-		businessAddress: sellerData.businessAddress,
-		logo: sellerData.logo,
-		sellerRating: 5.0,
-		totalReviews: 0,
-		verified: false,
-		joinedAsSellerDate: new Date(),
-	})
-
-	await entityManager.flush()
-	return seller
-}
-
 export async function updateUser(id: number, userData: UserUpdateData) {
 	const user = await getUserById(id)
 
@@ -112,21 +68,14 @@ export async function updateUser(id: number, userData: UserUpdateData) {
 		}
 	}
 
+	// Si se está actualizando la contraseña, hashearla
+	if (userData.password) {
+		userData.password = await bcrypt.hash(userData.password, 10)
+	}
+
 	entityManager.assign(user, userData)
 	await entityManager.flush()
 	return user
-}
-
-export async function verifySeller(id: number) {
-	const seller = await getUserById(id)
-
-	if (seller.role !== UserRole.SELLER) {
-		throw new Error('El usuario no es un vendedor')
-	}
-
-	seller.verified = true
-	await entityManager.flush()
-	return seller
 }
 
 export async function deleteUser(id: number) {
@@ -138,16 +87,6 @@ export async function deleteUser(id: number) {
 		throw new Error(
 			`El usuario tiene ${orderCount} orden${orderCount > 1 ? 'es' : ''} asociada${orderCount > 1 ? 's' : ''}`
 		)
-	}
-
-	// Si es vendedor, verificar productos
-	if (user.role === UserRole.SELLER) {
-		const productCount = await entityManager.count(Product, { seller: user.id })
-		if (productCount > 0) {
-			throw new Error(
-				`El vendedor tiene ${productCount} producto${productCount > 1 ? 's' : ''} publicado${productCount > 1 ? 's' : ''}`
-			)
-		}
 	}
 
 	await entityManager.removeAndFlush(user)

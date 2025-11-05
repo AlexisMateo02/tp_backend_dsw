@@ -5,9 +5,7 @@ import {
 	getUserById,
 	getUserByEmail,
 	createUser,
-	registerSeller,
 	updateUser,
-	verifySeller,
 	deleteUser,
 } from './user.service.js'
 
@@ -62,19 +60,6 @@ async function register(req: Request, res: Response) {
 	}
 }
 
-async function registerAsSellerHandler(req: Request, res: Response) {
-	try {
-		const sellerData = req.body.sanitizedInput
-		const seller = await registerSeller(sellerData)
-		return HttpResponse.Created(res, 'Vendedor registrado correctamente', seller)
-	} catch (err: any) {
-		if (err.message.includes('ya está registrado')) {
-			return HttpResponse.Conflict(res, err.message)
-		}
-		return HttpResponse.Error(res, 'Fallo al registrar vendedor')
-	}
-}
-
 async function update(req: Request, res: Response) {
 	try {
 		const id = Number.parseInt(req.params.id)
@@ -92,25 +77,6 @@ async function update(req: Request, res: Response) {
 			return HttpResponse.NotFound(res, err.message)
 		}
 		return HttpResponse.Error(res, 'Fallo al actualizar usuario')
-	}
-}
-
-async function verify(req: Request, res: Response) {
-	try {
-		const id = Number.parseInt(req.params.id)
-		const seller = await verifySeller(id)
-		return HttpResponse.Ok(res, 'Vendedor verificado correctamente', seller)
-	} catch (err: any) {
-		if (err.message === 'ID de usuario inválido') {
-			return HttpResponse.BadRequest(res, err.message)
-		}
-		if (err.message === 'El usuario no es un vendedor') {
-			return HttpResponse.BadRequest(res, err.message)
-		}
-		if (err.message.includes('no fue encontrado')) {
-			return HttpResponse.NotFound(res, err.message)
-		}
-		return HttpResponse.Error(res, 'Fallo al verificar vendedor')
 	}
 }
 
@@ -138,8 +104,6 @@ export const controllerUser = {
 	findOne,
 	findByEmail,
 	register,
-	registerAsSellerHandler,
 	update,
-	verify,
 	remove,
 }

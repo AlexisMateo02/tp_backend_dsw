@@ -15,6 +15,8 @@ import { boatTypeRouter } from './boatType/boatType.routes.js'
 import { productRouter } from './product/product.routes.js'
 import { orderRouter } from './order/order.routes.js'
 import { reviewRouter } from './review/review.routes.js'
+import { forumPublishmentRouter } from './ForumPublishment/forumPublishment.routes.js' 
+import { userRouter } from './user/user.routes.js'
 
 //! Middlewares globales
 const app = express()
@@ -32,6 +34,30 @@ app.use((req, res, next) => {
 	RequestContext.create(orm.em, next)
 })
 
+//! ✅ RUTAS DE HEALTH CHECK Y RAÍZ
+app.get('/health', (req, res) => {
+	res.json({
+		status: 'OK',
+		message: 'Servidor funcionando correctamente',
+		database: config.db.name,
+		environment: config.nodeEnv,
+		timestamp: new Date().toISOString()
+	})
+})
+
+app.get('/', (req, res) => {
+	res.json({
+		message: 'Bienvenido a Kayak Brokers API',
+		version: '1.0.0',
+		endpoints: {
+			health: '/health',
+			forum: '/api/forum-publishments',
+			products: '/api/products',
+			users: '/api/users'
+		}
+	})
+})
+
 //! Rutas específicas de la aplicación
 //? Ir agregando las rutas necesarias
 app.use('/api/articleTypes', articleTypeRouter)
@@ -44,7 +70,10 @@ app.use('/api/boatTypes', boatTypeRouter)
 app.use('/api/products', productRouter)
 app.use('/api/orders', orderRouter)
 app.use('/api/reviews', reviewRouter)
-// Rutas para Autenticación
+app.use('/api/forum-publishments', forumPublishmentRouter) 
+app.use('/api/users', userRouter)
+
+// Rutas para Autenticación (agregar cuando las tengas)
 
 app.use((_, res) => {
 	return res.status(404).json({ message: 'Resource not found' })

@@ -5,8 +5,12 @@ import {
     getForumPublishmentById, 
     createForumPublishment, 
     updateForumPublishment, 
-    deleteForumPublishment 
+    deleteForumPublishment,
+    getForumPublishmentsByStatus,
+    getActiveForumPublishments,
+    getSoldForumPublishments
 } from './forumPublishment.service.js'
+import { PublicationStatus } from './forumPublishment.entity.js'
 
 async function findAll(req: Request, res: Response) {
     try {
@@ -30,6 +34,35 @@ async function findOne(req: Request, res: Response) {
             return HttpResponse.NotFound(res, err.message)
         }
         return HttpResponse.Error(res, 'Fallo al encontrar publicación del foro')
+    }
+}
+
+// NUEVAS FUNCIONES PARA FILTRADO
+async function findByStatus(req: Request, res: Response) {
+    try {
+        const status = req.params.status as PublicationStatus
+        const publishments = await getForumPublishmentsByStatus(status)
+        return HttpResponse.Ok(res, `Publicaciones con estado ${status} encontradas correctamente`, publishments)
+    } catch (err: any) {
+        return HttpResponse.Error(res, 'Fallo al encontrar publicaciones por estado')
+    }
+}
+
+async function findActive(req: Request, res: Response) {
+    try {
+        const publishments = await getActiveForumPublishments()
+        return HttpResponse.Ok(res, 'Publicaciones activas encontradas correctamente', publishments)
+    } catch (err: any) {
+        return HttpResponse.Error(res, 'Fallo al encontrar publicaciones activas')
+    }
+}
+
+async function findSold(req: Request, res: Response) {
+    try {
+        const publishments = await getSoldForumPublishments()
+        return HttpResponse.Ok(res, 'Publicaciones vendidas encontradas correctamente', publishments)
+    } catch (err: any) {
+        return HttpResponse.Error(res, 'Fallo al encontrar publicaciones vendidas')
     }
 }
 
@@ -88,6 +121,9 @@ async function remove(req: Request, res: Response) {
 export const controllerForumPublishment = {
     findAll,
     findOne,
+    findByStatus,
+    findActive,
+    findSold,
     add,
     update,
     remove,

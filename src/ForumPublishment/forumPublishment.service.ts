@@ -1,6 +1,6 @@
 import { orm } from '../shared/dataBase/orm.js'
 import { validateId } from '../shared/utils/validationId.js'
-import { forumPublishment } from './forumPublishment.entity.js'
+import { ForumPublishment, PublicationStatus } from './forumPublishment.entity.js'
 import { User } from '../user/user.entity.js'
 
 const entityManager = orm.em
@@ -10,13 +10,16 @@ interface ForumPublishmentCreateData {
     content: string
     contactInfo: string
     authorId: number
+    imageUrl?: string
+    price?: number
+    status?: PublicationStatus
 }
 
 interface ForumPublishmentUpdateData extends Partial<ForumPublishmentCreateData> {}
 
 export async function getAllForumPublishments() {
     return await entityManager.find(
-        forumPublishment,
+        ForumPublishment,
         {},
         {
             populate: ['author'],
@@ -29,7 +32,7 @@ export async function getForumPublishmentById(id: number) {
     validateId(id, 'publicación')
     
     const publishment = await entityManager.findOne(
-        forumPublishment,
+        ForumPublishment,
         { id },
         {
             populate: ['author']
@@ -52,13 +55,37 @@ export async function getForumPublishmentsByAuthor(authorId: number) {
     }
     
     return await entityManager.find(
-        forumPublishment,
+        ForumPublishment,
         { author: authorId },
         {
             populate: ['author'],
             orderBy: { createdAt: 'DESC' }
         }
     )
+}
+
+export async function getForumPublishmentsByStatus(status: PublicationStatus) {
+    return await entityManager.find(
+        ForumPublishment,
+        { status },
+        {
+            populate: ['author'],
+            orderBy: { createdAt: 'DESC' }
+        }
+    )
+}
+
+// ✅ FUNCIONES ESPECÍFICAS PARA ESTADOS
+export async function getActiveForumPublishments() {
+    return await getForumPublishmentsByStatus(PublicationStatus.ACTIVE)
+}
+
+export async function getSoldForumPublishments() {
+    return await getForumPublishmentsByStatus(PublicationStatus.SOLD)
+}
+
+export async function getExpiredForumPublishments() {
+    return await getForumPublishmentsByStatus(PublicationStatus.EXPIRED)
 }
 
 export async function createForumPublishment(publishmentData: ForumPublishmentCreateData) {
@@ -73,11 +100,14 @@ export async function createForumPublishment(publishmentData: ForumPublishmentCr
         throw new Error(`El autor con ID ${publishmentData.authorId} no existe`)
     }
 
-    const publishment = entityManager.create(forumPublishment, {
+    const publishment = entityManager.create(ForumPublishment, {
         title: publishmentData.title,
         content: publishmentData.content,
         contactInfo: publishmentData.contactInfo,
-        author: author, // Asignamos la entidad User completa, no solo el ID
+        author: author,
+        imageUrl: publishmentData.imageUrl,
+        price: publishmentData.price,
+        status: publishmentData.status || PublicationStatus.ACTIVE,
         createdAt: new Date(),
         updatedAt: new Date()
     })
@@ -89,7 +119,7 @@ export async function createForumPublishment(publishmentData: ForumPublishmentCr
 export async function updateForumPublishment(id: number, publishmentData: ForumPublishmentUpdateData) {
     const publishment = await getForumPublishmentById(id)
 
-    // Si se cambia el autor, validar que existe y obtener la entidad completa
+    // Si se cambia el autor, validar que existe
     if (publishmentData.authorId) {
         const author = await entityManager.findOne(User, { id: publishmentData.authorId })
         if (!author) {
@@ -102,6 +132,9 @@ export async function updateForumPublishment(id: number, publishmentData: ForumP
     if (publishmentData.title !== undefined) publishment.title = publishmentData.title
     if (publishmentData.content !== undefined) publishment.content = publishmentData.content
     if (publishmentData.contactInfo !== undefined) publishment.contactInfo = publishmentData.contactInfo
+    if (publishmentData.imageUrl !== undefined) publishment.imageUrl = publishmentData.imageUrl
+    if (publishmentData.price !== undefined) publishment.price = publishmentData.price
+    if (publishmentData.status !== undefined) publishment.status = publishmentData.status
     
     publishment.updatedAt = new Date()
 
@@ -123,7 +156,7 @@ export async function deleteForumPublishmentsByAuthor(authorId: number) {
         throw new Error(`El autor con ID ${authorId} no existe`)
     }
     
-    const publishments = await entityManager.find(forumPublishment, { author: authorId })
+    const publishments = await entityManager.find(ForumPublishment, { author: authorId })
     
     if (publishments.length > 0) {
         await entityManager.removeAndFlush(publishments)

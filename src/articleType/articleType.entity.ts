@@ -4,10 +4,10 @@ import { Product } from '../product/product.entity.js'
 
 @Entity()
 export class ArticleType extends BaseEntity {
-	@Property({ nullable: false, unique: true })
+	@Property({  type: 'string', nullable: false, unique: true })
 	name!: string
 
-	@Property({ nullable: false })
+	@Property({  type: 'string', nullable: false })
 	mainUse!: string
 
 	@OneToMany(() => Product, product => product.articleType, { cascade: [Cascade.ALL], nullable: true })

@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import { HttpResponse } from '../shared/errors/errorManager.js'
+import { PublicationStatus } from './forumPublishment.entity.js'
 
 function sanitizeForumPublishmentInput(req: Request, res: Response, next: NextFunction) {
     req.body.sanitizedInput = {
@@ -7,6 +8,9 @@ function sanitizeForumPublishmentInput(req: Request, res: Response, next: NextFu
         content: typeof req.body.content === 'string' ? req.body.content.trim() : undefined,
         contactInfo: typeof req.body.contactInfo === 'string' ? req.body.contactInfo.trim() : undefined,
         authorId: req.body.authorId !== undefined ? Number(req.body.authorId) : undefined,
+        imageUrl: typeof req.body.imageUrl === 'string' ? req.body.imageUrl.trim() : undefined,
+        price: req.body.price !== undefined ? Number(req.body.price) : undefined,
+        status: req.body.status as PublicationStatus
     }
 
     Object.keys(req.body.sanitizedInput).forEach(key => {
@@ -53,6 +57,16 @@ function validateCreateInput(req: Request, res: Response, next: NextFunction) {
     // Validaciones para authorId
     if (isNaN(input.authorId) || input.authorId <= 0) {
         return HttpResponse.BadRequest(res, 'El autor debe ser un ID válido')
+    }
+
+    // Validaciones para price (opcional pero si está presente debe ser positivo)
+    if (input.price !== undefined && (isNaN(input.price) || input.price < 0)) {
+        return HttpResponse.BadRequest(res, 'El precio debe ser un número positivo')
+    }
+
+    // Validaciones para status (si está presente debe ser uno de los valores del enum)
+    if (input.status && !Object.values(PublicationStatus).includes(input.status)) {
+        return HttpResponse.BadRequest(res, 'El estado de la publicación no es válido')
     }
 
     next()
@@ -106,6 +120,14 @@ function validateUpdateInput(req: Request, res: Response, next: NextFunction) {
         if (isNaN(input.authorId) || input.authorId <= 0) {
             return HttpResponse.BadRequest(res, 'El autor debe ser un ID válido')
         }
+    }
+
+    if (input.price !== undefined && (isNaN(input.price) || input.price < 0)) {
+        return HttpResponse.BadRequest(res, 'El precio debe ser un número positivo')
+    }
+
+    if (input.status && !Object.values(PublicationStatus).includes(input.status)) {
+        return HttpResponse.BadRequest(res, 'El estado de la publicación no es válido')
     }
 
     next()

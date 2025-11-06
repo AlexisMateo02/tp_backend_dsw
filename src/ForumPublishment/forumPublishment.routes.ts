@@ -1,21 +1,38 @@
 import express from 'express'
 import { controllerForumPublishment } from './forumPublishment.controller.js'
-import { 
-    sanitizeForumPublishmentInput, 
-    validateCreateInput, 
-    validateUpdateInput 
+import {
+	sanitizeForumPublishmentInput,
+	validateCreateInput,
+	validateUpdateInput,
 } from './forumPublishment.middleware.js'
+import { authenticate, requireCustomer } from '../auth/auth.middleware.js'
 
 export const forumPublishmentRouter = express.Router()
 
-// RUTAS PARA LISTADOS FILTRADOS
+// RUTAS PÚBLICAS (sin autenticación)
 forumPublishmentRouter.get('/', controllerForumPublishment.findAll)
 forumPublishmentRouter.get('/active', controllerForumPublishment.findActive)
 forumPublishmentRouter.get('/sold', controllerForumPublishment.findSold)
 forumPublishmentRouter.get('/status/:status', controllerForumPublishment.findByStatus)
-
-// RUTAS CRUD BÁSICAS
 forumPublishmentRouter.get('/:id', controllerForumPublishment.findOne)
-forumPublishmentRouter.post('/', sanitizeForumPublishmentInput, validateCreateInput, controllerForumPublishment.add)
-forumPublishmentRouter.put('/:id', sanitizeForumPublishmentInput, validateUpdateInput, controllerForumPublishment.update)
-forumPublishmentRouter.delete('/:id', controllerForumPublishment.remove)
+
+// RUTAS PROTEGIDAS (requieren autenticación)
+forumPublishmentRouter.post(
+	'/',
+	authenticate,
+	requireCustomer,
+	sanitizeForumPublishmentInput,
+	validateCreateInput,
+	controllerForumPublishment.add
+)
+
+forumPublishmentRouter.put(
+	'/:id',
+	authenticate,
+	requireCustomer,
+	sanitizeForumPublishmentInput,
+	validateUpdateInput,
+	controllerForumPublishment.update
+)
+
+forumPublishmentRouter.delete('/:id', authenticate, requireCustomer, controllerForumPublishment.remove)

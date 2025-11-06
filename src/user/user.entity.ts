@@ -28,12 +28,10 @@ export class User extends BaseEntity {
 	@Enum(() => UserRole)
 	role: UserRole = UserRole.CUSTOMER
 
-
 	//! Relaciones
 	@OneToMany(() => Order, order => order.user, { cascade: [Cascade.ALL] })
 	orders = new Collection<Order>(this)
 
 	@OneToMany(() => Review, review => review.user, { cascade: [Cascade.ALL] })
 	reviews = new Collection<Review>(this)
-
 }

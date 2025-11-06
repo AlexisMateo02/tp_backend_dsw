@@ -5,58 +5,75 @@ import { UserRole } from '../user/user.entity.js'
 
 // Extender el tipo Request de Express
 declare global {
-  namespace Express {
-    interface Request {
-      user?: {
-        userId: number
-        email: string
-        role: UserRole
-      }
-    }
-  }
+	namespace Express {
+		interface Request {
+			user?: {
+				userId: number
+				email: string
+				role: UserRole
+			}
+		}
+	}
 }
 
 export function authenticate(req: Request, res: Response, next: NextFunction) {
-  try {
-    const authHeader = req.headers.authorization
+	try {
+		const authHeader = req.headers.authorization
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return HttpResponse.Unauthorized(res, 'Token de autenticación requerido')
-    }
+		if (!authHeader || !authHeader.startsWith('Bearer ')) {
+			return HttpResponse.Unauthorized(res, 'Token de autenticación requerido')
+		}
 
-    const token = authHeader.split(' ')[1]
-    const decoded = verifyToken(token)
+		const token = authHeader.split(' ')[1]
+		const decoded = verifyToken(token)
 
-    // Validar que decoded.userId existe
-    if (!decoded.userId) {
-      return HttpResponse.Unauthorized(res, 'Token inválido')
-    }
+		// Validar que decoded.userId existe
+		if (!decoded.userId) {
+			return HttpResponse.Unauthorized(res, 'Token inválido')
+		}
 
-    // Agregar información del usuario al request
-    req.user = {
-      userId: decoded.userId,
-      email: decoded.email,
-      role: decoded.role
-    }
+		// Agregar información del usuario al request
+		req.user = {
+			userId: decoded.userId,
+			email: decoded.email,
+			role: decoded.role,
+		}
 
-    next()
-  } catch (error: any) {
-    return HttpResponse.Unauthorized(res, error.message)
-  }
+		next()
+	} catch (error: any) {
+		return HttpResponse.Unauthorized(res, error.message)
+	}
 }
 
 export function authorize(roles: UserRole[]) {
-  return (req: Request, res: Response, next: NextFunction) => {
-    if (!req.user) {
-      return HttpResponse.Unauthorized(res, 'Usuario no autenticado')
-    }
+	return (req: Request, res: Response, next: NextFunction) => {
+		if (!req.user) {
+			return HttpResponse.Unauthorized(res, 'Usuario no autenticado')
+		}
 
-    if (!roles.includes(req.user.role)) {
-      return HttpResponse.Forbidden(res, 'No tienes permisos para realizar esta acción')
-    }
+		if (!roles.includes(req.user.role)) {
+			return HttpResponse.Forbidden(res, 'No tienes permisos para realizar esta acción')
+		}
 
-    next()
-  }
+		next()
+	}
+}
+
+export function authorizeSelfOrAdmin(req: Request, res: Response, next: NextFunction) {
+	if (!req.user) {
+		return HttpResponse.Unauthorized(res, 'Usuario no autenticado')
+	}
+
+	const requestedUserId = Number.parseInt(req.params.id)
+	if (isNaN(requestedUserId)) {
+		return HttpResponse.BadRequest(res, 'ID de usuario inválido')
+	}
+
+	if (req.user.role === UserRole.ADMIN || req.user.userId === requestedUserId) {
+		next()
+	} else {
+		return HttpResponse.Forbidden(res, 'No tienes permisos para realizar esta acción')
+	}
 }
 
 // Middlewares específicos por rol

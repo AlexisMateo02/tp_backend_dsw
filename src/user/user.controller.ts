@@ -7,6 +7,7 @@ import {
 	createUser,
 	updateUser,
 	deleteUser,
+	changeThePassword,
 } from './user.service.js'
 
 async function findAll(req: Request, res: Response) {
@@ -99,6 +100,35 @@ async function remove(req: Request, res: Response) {
 	}
 }
 
+async function changePassword(req: Request, res: Response) {
+	try {
+		const id = Number.parseInt(req.params.id)
+		const { currentPassword, newPassword } = req.body
+
+		if (!currentPassword || !newPassword) {
+			return HttpResponse.BadRequest(res, 'Contraseña actual y nueva contraseña son requeridas')
+		}
+
+		if (newPassword.length < 6) {
+			return HttpResponse.BadRequest(res, 'La nueva contraseña debe tener al menos 6 caracteres')
+		}
+
+		const user = await changeThePassword(id, currentPassword, newPassword)
+		return HttpResponse.Ok(res, 'Contraseña actualizada correctamente')
+	} catch (err: any) {
+		if (err.message === 'ID de usuario inválido') {
+			return HttpResponse.BadRequest(res, err.message)
+		}
+		if (err.message.includes('no fue encontrado')) {
+			return HttpResponse.NotFound(res, err.message)
+		}
+		if (err.message.includes('contraseña actual')) {
+			return HttpResponse.BadRequest(res, err.message)
+		}
+		return HttpResponse.Error(res, 'Fallo al cambiar contraseña')
+	}
+}
+
 export const controllerUser = {
 	findAll,
 	findOne,
@@ -106,4 +136,5 @@ export const controllerUser = {
 	register,
 	update,
 	remove,
+	changePassword,
 }

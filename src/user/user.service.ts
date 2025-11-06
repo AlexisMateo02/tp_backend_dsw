@@ -92,3 +92,20 @@ export async function deleteUser(id: number) {
 	await entityManager.removeAndFlush(user)
 	return true
 }
+
+export async function changeThePassword(id: number, currentPassword: string, newPassword: string) {
+	const user = await getUserById(id)
+
+	// Verificar contraseña actual
+	const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.password)
+	if (!isCurrentPasswordValid) {
+		throw new Error('La contraseña actual es incorrecta')
+	}
+
+	// Hashear nueva contraseña
+	const hashedPassword = await bcrypt.hash(newPassword, 10)
+	user.password = hashedPassword
+
+	await entityManager.flush()
+	return user
+}

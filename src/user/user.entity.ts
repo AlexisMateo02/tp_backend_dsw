@@ -2,7 +2,6 @@ import { Entity, Property, OneToMany, Collection, Cascade, Enum } from '@mikro-o
 import { BaseEntity } from '../shared/dataBase/baseEntity.js'
 import { Order } from '../order/order.entity.js'
 import { Review } from '../review/review.entity.js'
-import { Product } from '../product/product.entity.js'
 
 export enum UserRole {
 	CUSTOMER = 'customer',
@@ -37,6 +36,4 @@ export class User extends BaseEntity {
 	@OneToMany(() => Review, review => review.user, { cascade: [Cascade.ALL] })
 	reviews = new Collection<Review>(this)
 
-	@OneToMany(() => Product, product => product.seller, { cascade: [Cascade.ALL] })
-	sellerProducts = new Collection<Product>(this)
 }

@@ -9,7 +9,7 @@ const envSchema = z.object({
 
 	// URLs
 	BACKEND_URL: z.string().url().default('http://localhost:3000'),
-	FRONTEND_URL: z.string().url().default('http://localhost:3001'),
+	FRONTEND_URL: z.string().url().default('http://localhost:5173'),
 	PORT: z.string().default('3000'),
 
 	// Base de datos

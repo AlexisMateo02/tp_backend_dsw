@@ -17,14 +17,15 @@ import { orderRouter } from './order/order.routes.js'
 import { reviewRouter } from './review/review.routes.js'
 import { forumPublishmentRouter } from './ForumPublishment/forumPublishment.routes.js' 
 import { userRouter } from './user/user.routes.js'
+import {authRouter} from './auth/auth.routes.js'
 
 //! Middlewares globales
 const app = express()
 app.use(
-	cors({
-		origin: config.nodeEnv === 'development' ? '*' : config.frontendUrl,
-		credentials: true,
-	})
+  cors({
+    origin: config.frontendUrl, 
+    credentials: true,
+  })
 )
 app.use(express.json())
 app.use(express.static('public'))
@@ -72,6 +73,7 @@ app.use('/api/orders', orderRouter)
 app.use('/api/reviews', reviewRouter)
 app.use('/api/forum-publishments', forumPublishmentRouter) 
 app.use('/api/users', userRouter)
+app.use('/api/auth', authRouter);
 
 // Rutas para Autenticación (agregar cuando las tengas)
 

@@ -2,7 +2,6 @@ import { Request, Response } from 'express'
 import { HttpResponse } from '../shared/errors/errorManager.js'
 import {
 	getAllPickUpPoints,
-	getActivePickUpPoints,
 	getPickUpPointById,
 	getPickUpPointsByLocalty,
 	createPickUpPoint,
@@ -16,15 +15,6 @@ async function findAll(req: Request, res: Response) {
 		return HttpResponse.Ok(res, 'Todos los puntos de retiro fueron encontrados correctamente', pickUpPoints)
 	} catch (err: any) {
 		return HttpResponse.Error(res, 'Fallo al encontrar puntos de retiro')
-	}
-}
-
-async function findActive(req: Request, res: Response) {
-	try {
-		const pickUpPoints = await getActivePickUpPoints()
-		return HttpResponse.Ok(res, 'Puntos de retiro activos encontrados correctamente', pickUpPoints)
-	} catch (err: any) {
-		return HttpResponse.Error(res, 'Fallo al encontrar puntos de retiro activos')
 	}
 }
 
@@ -99,13 +89,15 @@ async function remove(req: Request, res: Response) {
 		if (err.message.includes('no fue encontrado')) {
 			return HttpResponse.NotFound(res, err.message)
 		}
+		if (err.message.includes('orden')) {
+			return HttpResponse.Conflict(res, err.message)
+		}
 		return HttpResponse.Error(res, 'Fallo al eliminar punto de retiro')
 	}
 }
 
 export const controllerPickUpPoint = {
 	findAll,
-	findActive,
 	findOne,
 	findByLocalty,
 	add,

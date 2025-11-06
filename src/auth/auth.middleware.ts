@@ -61,5 +61,4 @@ export function authorize(roles: UserRole[]) {
 
 // Middlewares específicos por rol
 export const requireAdmin = authorize([UserRole.ADMIN])
-export const requireSeller = authorize([UserRole.SELLER, UserRole.ADMIN])
-export const requireCustomer = authorize([UserRole.CUSTOMER, UserRole.SELLER, UserRole.ADMIN])
+export const requireCustomer = authorize([UserRole.CUSTOMER, UserRole.ADMIN])

@@ -40,11 +40,6 @@ function sanitizeProductInput(req: Request, res: Response, next: NextFunction) {
             : typeof req.body.articleTypeId === 'string' 
                 ? Number.parseInt(req.body.articleTypeId) 
                 : undefined,
-        sellerId: typeof req.body.sellerId === 'number' 
-            ? req.body.sellerId 
-            : typeof req.body.sellerId === 'string' 
-                ? Number.parseInt(req.body.sellerId) 
-                : undefined,
     }
 
     Object.keys(req.body.sanitizedInput).forEach(key => {
@@ -156,9 +151,6 @@ function validateCreateInput(req: Request, res: Response, next: NextFunction) {
     }
     if (input.articleTypeId && (!Number.isInteger(input.articleTypeId) || input.articleTypeId <= 0)) {
         return HttpResponse.BadRequest(res, 'El ID del tipo de artículo debe ser un número entero positivo')
-    }
-    if (input.sellerId && (!Number.isInteger(input.sellerId) || input.sellerId <= 0)) {
-        return HttpResponse.BadRequest(res, 'El ID del vendedor debe ser un número entero positivo')
     }
 
     next()
@@ -286,11 +278,6 @@ function validateUpdateInput(req: Request, res: Response, next: NextFunction) {
             return HttpResponse.BadRequest(res, 'El ID del tipo de artículo debe ser un número entero positivo')
         }
     }
-    if (input.sellerId !== undefined && input.sellerId !== null) {
-        if (!Number.isInteger(input.sellerId) || input.sellerId <= 0) {
-            return HttpResponse.BadRequest(res, 'El ID del vendedor debe ser un número entero positivo')
-        }
-    }
 
     next()
 }
@@ -301,17 +288,6 @@ function validateIdParam(req: Request, res: Response, next: NextFunction) {
     
     if (isNaN(id) || id <= 0) {
         return HttpResponse.BadRequest(res, 'ID de producto inválido')
-    }
-    
-    next()
-}
-
-// Middleware para validar sellerId en parámetros
-function validateSellerIdParam(req: Request, res: Response, next: NextFunction) {
-    const sellerId = Number.parseInt(req.params.sellerId)
-    
-    if (isNaN(sellerId) || sellerId <= 0) {
-        return HttpResponse.BadRequest(res, 'ID de vendedor inválido')
     }
     
     next()
@@ -334,6 +310,5 @@ export {
     validateCreateInput, 
     validateUpdateInput,
     validateIdParam,
-    validateSellerIdParam,
     validateCategoryParam
 }

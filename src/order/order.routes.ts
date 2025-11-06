@@ -13,7 +13,16 @@ export const orderRouter = express.Router()
 orderRouter.get('/', controllerOrder.findAll)
 orderRouter.get('/:id', controllerOrder.findOne)
 orderRouter.get('/user/:userId', controllerOrder.findByUser)
+orderRouter.get('/pickup-point/:pickUpPointId', controllerOrder.findByPickUpPoint)
+
+// Crear nueva orden
 orderRouter.post('/', sanitizeOrderInput, validateCreateOrderInput, controllerOrder.add)
+
+// Actualizar orden (status y notes)
+orderRouter.put('/:id', sanitizeOrderInput, validateUpdateOrderInput, controllerOrder.update)
+
+// Actualizar solo el estado de la orden
 orderRouter.patch('/:id/status', sanitizeOrderInput, validateUpdateStatusInput, controllerOrder.updateStatus)
-orderRouter.put('/:id', sanitizeOrderInput, validateUpdateOrderInput, controllerOrder.updateStatus)
+
+// Eliminar orden
 orderRouter.delete('/:id', controllerOrder.remove)

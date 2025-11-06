@@ -1,6 +1,5 @@
 import { Entity, Property, ManyToOne, Rel, Enum, OneToMany, Collection, Cascade } from '@mikro-orm/core'
 import { BaseEntity } from '../shared/dataBase/baseEntity.js'
-import { User } from '../user/user.entity.js'
 import { KayakType } from '../kayakType/kayakType.entity.js'
 import { SUPType } from '../supType/supType.entity.js'
 import { BoatType } from '../boatType/boatType.entity.js'
@@ -56,9 +55,6 @@ export class Product extends BaseEntity {
 	@Property({ type: 'boolean', nullable: false, default: false })
 	approved: boolean = false
 
-	@Property({ type: 'int', nullable: false, default: 0 })
-	soldCount: number = 0
-
 	@Property({ nullable: false })
 	createdAt: Date = new Date()
 
@@ -74,13 +70,6 @@ export class Product extends BaseEntity {
 
 	@ManyToOne(() => ArticleType, { nullable: true })
 	articleType?: Rel<ArticleType>
-
-	//! Vendedor (null = producto oficial KBR)
-	@ManyToOne(() => User, { nullable: true })
-	seller?: Rel<User>
-
-	@Property({ nullable: true })
-	sellerName?: string
 
 	@OneToMany(() => OrderItem, orderItem => orderItem.product, { cascade: [Cascade.ALL] })
 	orderItems = new Collection<OrderItem>(this)

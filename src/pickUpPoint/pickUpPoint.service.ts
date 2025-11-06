@@ -2,32 +2,23 @@ import { orm } from '../shared/dataBase/orm.js'
 import { validateId } from '../shared/utils/validationId.js'
 import { PickUpPoint } from './pickUpPoint.entity.js'
 import { Localty } from '../localty/localty.entity.js'
+import { Order } from '../order/order.entity.js'
 
 const entityManager = orm.em
 
 interface PickUpPointCreateData {
-	name: string
+	storeName?: string
 	address: string
-	phone?: string
-	email?: string
-	description?: string
-	openingHours?: string
-	imageUrl?: string
-	latitude?: number
-	longitude?: number
+	adressDescription?: string
+	phoneNumber?: string
+	horary?: string
 	localtyId: number
 }
 
-interface PickUpPointUpdateData extends Partial<PickUpPointCreateData> {
-	active?: boolean
-}
+interface PickUpPointUpdateData extends Partial<PickUpPointCreateData> {}
 
 export async function getAllPickUpPoints() {
 	return await entityManager.find(PickUpPoint, {}, { populate: ['localty', 'localty.province'] })
-}
-
-export async function getActivePickUpPoints() {
-	return await entityManager.find(PickUpPoint, { active: true }, { populate: ['localty', 'localty.province'] })
 }
 
 export async function getPickUpPointById(id: number) {
@@ -52,17 +43,12 @@ export async function createPickUpPoint(pickUpPointData: PickUpPointCreateData) 
 	}
 
 	const pickUpPoint = entityManager.create(PickUpPoint, {
-		name: pickUpPointData.name,
+		storeName: pickUpPointData.storeName,
 		address: pickUpPointData.address,
-		phone: pickUpPointData.phone,
-		email: pickUpPointData.email,
-		description: pickUpPointData.description,
-		openingHours: pickUpPointData.openingHours,
-		imageUrl: pickUpPointData.imageUrl,
-		latitude: pickUpPointData.latitude,
-		longitude: pickUpPointData.longitude,
+		adressDescription: pickUpPointData.adressDescription,
+		phoneNumber: pickUpPointData.phoneNumber,
+		horary: pickUpPointData.horary,
 		localty,
-		active: true,
 	})
 
 	await entityManager.flush()
@@ -88,6 +74,15 @@ export async function updatePickUpPoint(id: number, pickUpPointData: PickUpPoint
 
 export async function deletePickUpPoint(id: number) {
 	const pickUpPoint = await getPickUpPointById(id)
+
+	// Verificar si hay órdenes asociadas a este punto de retiro
+	const orderCount = await entityManager.count(Order, { pickUpPoint: pickUpPoint.id })
+	if (orderCount > 0) {
+		throw new Error(
+			`No se puede eliminar el punto de retiro porque tiene ${orderCount} orden${orderCount > 1 ? 'es' : ''} asociada${orderCount > 1 ? 's' : ''}`
+		)
+	}
+
 	await entityManager.removeAndFlush(pickUpPoint)
 	return true
 }

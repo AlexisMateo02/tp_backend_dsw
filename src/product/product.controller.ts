@@ -5,7 +5,6 @@ import {
 	getApprovedProducts,
 	getPendingProducts,
 	getProductsByCategory,
-	getProductsBySeller,
 	getProductById,
 	createProduct,
 	updateProduct,
@@ -47,19 +46,6 @@ async function findByCategory(req: Request, res: Response) {
 		return HttpResponse.Ok(res, `Productos de categoría ${category} encontrados correctamente`, products)
 	} catch (err: any) {
 		return HttpResponse.Error(res, 'Fallo al encontrar productos por categoría')
-	}
-}
-
-async function findBySeller(req: Request, res: Response) {
-	try {
-		const sellerId = Number.parseInt(req.params.sellerId)
-		const products = await getProductsBySeller(sellerId)
-		return HttpResponse.Ok(res, 'Productos del vendedor encontrados correctamente', products)
-	} catch (err: any) {
-		if (err.message === 'ID de vendedor inválido') {
-			return HttpResponse.BadRequest(res, err.message)
-		}
-		return HttpResponse.Error(res, 'Fallo al encontrar productos del vendedor')
 	}
 }
 
@@ -155,7 +141,6 @@ export const controllerProduct = {
 	findApproved,
 	findPending,
 	findByCategory,
-	findBySeller,
 	findOne,
 	add,
 	update,

@@ -92,7 +92,7 @@ async function remove(req: Request, res: Response) {
 		if (err.message.includes('no fue encontrado')) {
 			return HttpResponse.NotFound(res, err.message)
 		}
-		if (err.message.includes('orden') || err.message.includes('producto')) {
+		if (err.message.includes('orden')) {
 			return HttpResponse.Conflict(res, err.message)
 		}
 		return HttpResponse.Error(res, 'Fallo al eliminar usuario')

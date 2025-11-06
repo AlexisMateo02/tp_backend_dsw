@@ -5,7 +5,6 @@ import {
     validateCreateInput, 
     validateUpdateInput,
     validateIdParam,
-    validateSellerIdParam,
     validateCategoryParam
 } from './product.middleware.js'
 
@@ -16,7 +15,6 @@ productRouter.get('/', controllerProduct.findAll)
 productRouter.get('/approved', controllerProduct.findApproved)
 productRouter.get('/pending', controllerProduct.findPending)
 productRouter.get('/category/:category', validateCategoryParam, controllerProduct.findByCategory)
-productRouter.get('/seller/:sellerId', validateSellerIdParam, controllerProduct.findBySeller)
 productRouter.get('/:id', validateIdParam, controllerProduct.findOne)
 
 // Rutas de modificación

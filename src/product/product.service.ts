@@ -1,7 +1,6 @@
 import { orm } from '../shared/dataBase/orm.js'
 import { validateId } from '../shared/utils/validationId.js'
 import { Product, ProductCategory } from './product.entity.js'
-import { User, UserRole } from '../user/user.entity.js'
 import { KayakType } from '../kayakType/kayakType.entity.js'
 import { SUPType } from '../supType/supType.entity.js'
 import { BoatType } from '../boatType/boatType.entity.js'
@@ -27,7 +26,6 @@ interface ProductCreateData {
 	supTypeId?: number
 	boatTypeId?: number
 	articleTypeId?: number
-	sellerId?: number
 }
 
 interface ProductUpdateData extends Partial<ProductCreateData> {}
@@ -37,7 +35,7 @@ export async function getAllProducts() {
 		Product,
 		{},
 		{
-			populate: ['kayakType', 'supType', 'boatType', 'articleType', 'seller'],
+			populate: ['kayakType', 'supType', 'boatType', 'articleType'],
 		}
 	)
 }
@@ -47,7 +45,7 @@ export async function getApprovedProducts() {
 		Product,
 		{ approved: true },
 		{
-			populate: ['kayakType', 'supType', 'boatType', 'articleType', 'seller'],
+			populate: ['kayakType', 'supType', 'boatType', 'articleType'],
 		}
 	)
 }
@@ -57,7 +55,7 @@ export async function getPendingProducts() {
 		Product,
 		{ approved: false },
 		{
-			populate: ['kayakType', 'supType', 'boatType', 'articleType', 'seller'],
+			populate: ['kayakType', 'supType', 'boatType', 'articleType'],
 		}
 	)
 }
@@ -67,18 +65,7 @@ export async function getProductsByCategory(category: ProductCategory) {
 		Product,
 		{ category, approved: true },
 		{
-			populate: ['kayakType', 'supType', 'boatType', 'articleType', 'seller'],
-		}
-	)
-}
-
-export async function getProductsBySeller(sellerId: number) {
-	validateId(sellerId, 'vendedor')
-	return await entityManager.find(
-		Product,
-		{ seller: sellerId },
-		{
-			populate: ['kayakType', 'supType', 'boatType', 'articleType', 'seller'],
+			populate: ['kayakType', 'supType', 'boatType', 'articleType'],
 		}
 	)
 }
@@ -89,7 +76,7 @@ export async function getProductById(id: number) {
 		Product,
 		{ id },
 		{
-			populate: ['kayakType', 'supType', 'boatType', 'articleType', 'seller', 'reviews'],
+			populate: ['kayakType', 'supType', 'boatType', 'articleType', 'reviews'],
 		}
 	)
 	if (!product) {
@@ -114,7 +101,7 @@ export async function createProduct(productData: ProductCreateData) {
 	}
 
 	// Obtener relaciones
-	let kayakType, supType, boatType, articleType, seller
+	let kayakType, supType, boatType, articleType
 
 	if (productData.kayakTypeId) {
 		kayakType = await entityManager.findOne(KayakType, { id: productData.kayakTypeId })
@@ -144,13 +131,6 @@ export async function createProduct(productData: ProductCreateData) {
 		}
 	}
 
-	if (productData.sellerId) {
-		seller = await entityManager.findOne(User, { id: productData.sellerId })
-		if (!seller || seller.role !== UserRole.SELLER) {
-			throw new Error('El vendedor especificado no es válido')
-		}
-	}
-
 	const product = entityManager.create(Product, {
 		Productname: productData.Productname,
 		price: productData.price,
@@ -168,10 +148,7 @@ export async function createProduct(productData: ProductCreateData) {
 		supType,
 		boatType,
 		articleType,
-		seller,
-		sellerName: seller?.businessName,
-		approved: seller ? false : true, //! Productos KBR se aprueban automáticamente
-		soldCount: 0,
+		approved: false,
 		createdAt: new Date(),
 	})
 

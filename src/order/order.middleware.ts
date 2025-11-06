@@ -1,23 +1,14 @@
 import { Request, Response, NextFunction } from 'express'
 import { HttpResponse } from '../shared/errors/errorManager.js'
-import { OrderStatus, DeliveryType } from './order.entity.js'
+import { OrderStatus } from './order.entity.js'
 
 function sanitizeOrderInput(req: Request, res: Response, next: NextFunction) {
 	req.body.sanitizedInput = {
-		deliveryType: req.body.deliveryType !== undefined ? req.body.deliveryType.toString().trim().toLowerCase() : undefined,
 		totalAmount: req.body.totalAmount !== undefined ? parseFloat(req.body.totalAmount) : undefined,
-		shippingCost: req.body.shippingCost !== undefined ? parseFloat(req.body.shippingCost) : undefined,
-		taxAmount: req.body.taxAmount !== undefined ? parseFloat(req.body.taxAmount) : undefined,
-		buyerName: typeof req.body.buyerName === 'string' ? req.body.buyerName.trim() : undefined,
-		buyerEmail: typeof req.body.buyerEmail === 'string' ? req.body.buyerEmail.trim().toLowerCase() : undefined,
-		buyerPhone: typeof req.body.buyerPhone === 'string' ? req.body.buyerPhone.trim().replace(/\s+/g, '') : undefined,
-		shippingAddress: typeof req.body.shippingAddress === 'string' ? req.body.shippingAddress.trim() : undefined,
-		shippingCity: typeof req.body.shippingCity === 'string' ? req.body.shippingCity.trim() : undefined,
-		shippingPostalCode: typeof req.body.shippingPostalCode === 'string' ? req.body.shippingPostalCode.trim().replace(/\s+/g, '') : undefined,
-		shippingProvince: typeof req.body.shippingProvince === 'string' ? req.body.shippingProvince.trim() : undefined,
-		pickupPointId: req.body.pickupPointId !== undefined ? Number(req.body.pickupPointId) : undefined,
+		buyerContact: typeof req.body.buyerContact === 'string' ? req.body.buyerContact.trim() : undefined,
 		notes: typeof req.body.notes === 'string' ? req.body.notes.trim() : undefined,
 		userId: req.body.userId !== undefined ? Number(req.body.userId) : undefined,
+		pickUpPointId: req.body.pickUpPointId !== undefined ? Number(req.body.pickUpPointId) : undefined,
 		status: req.body.status !== undefined ? req.body.status.toString().trim().toLowerCase() : undefined,
 		items: Array.isArray(req.body.items) ? req.body.items.map((item: any) => ({
 			productId: item.productId !== undefined ? Number(item.productId) : undefined,
@@ -40,18 +31,10 @@ function validateCreateOrderInput(req: Request, res: Response, next: NextFunctio
 	const input = req.body.sanitizedInput
 
 	// Campos obligatorios
-	if (!input.deliveryType) return HttpResponse.BadRequest(res, 'El tipo de entrega es requerido')
 	if (!input.totalAmount) return HttpResponse.BadRequest(res, 'El monto total es requerido')
-	if (!input.buyerName) return HttpResponse.BadRequest(res, 'El nombre del comprador es requerido')
-	if (!input.buyerEmail) return HttpResponse.BadRequest(res, 'El email del comprador es requerido')
+	if (!input.buyerContact) return HttpResponse.BadRequest(res, 'El contacto del comprador es requerido')
 	if (!input.items || !Array.isArray(input.items) || input.items.length === 0) {
 		return HttpResponse.BadRequest(res, 'La orden debe contener al menos un item')
-	}
-
-	// Validar deliveryType
-	const validDeliveryTypes = Object.values(DeliveryType)
-	if (!validDeliveryTypes.includes(input.deliveryType)) {
-		return HttpResponse.BadRequest(res, `Tipo de entrega inválido. Debe ser uno de: ${validDeliveryTypes.join(', ')}`)
 	}
 
 	// Validar totalAmount
@@ -59,33 +42,20 @@ function validateCreateOrderInput(req: Request, res: Response, next: NextFunctio
 		return HttpResponse.BadRequest(res, 'El monto total debe ser un número mayor a 0')
 	}
 
-	// Validar buyerName
-	if (input.buyerName.length < 2) {
-		return HttpResponse.BadRequest(res, 'El nombre del comprador debe tener al menos 2 caracteres')
+	// Validar buyerContact
+	if (input.buyerContact.length < 2) {
+		return HttpResponse.BadRequest(res, 'El contacto del comprador debe tener al menos 2 caracteres')
 	}
-	if (input.buyerName.length > 100) {
-		return HttpResponse.BadRequest(res, 'El nombre del comprador no puede exceder los 100 caracteres')
+	if (input.buyerContact.length > 100) {
+		return HttpResponse.BadRequest(res, 'El contacto del comprador no puede exceder los 100 caracteres')
 	}
 
-	// Validar buyerEmail
+	// Validar buyerContact (puede ser email o teléfono)
 	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-	if (!emailRegex.test(input.buyerEmail)) {
-		return HttpResponse.BadRequest(res, 'El email del comprador no es válido')
-	}
-
-	// Validar buyerPhone si está presente
-	if (input.buyerPhone && !/^\+?[0-9\s\-\(\)]{10,}$/.test(input.buyerPhone)) {
-		return HttpResponse.BadRequest(res, 'El teléfono del comprador no es válido')
-	}
-
-	// Validar shippingCost si está presente
-	if (input.shippingCost !== undefined && (isNaN(input.shippingCost) || input.shippingCost < 0)) {
-		return HttpResponse.BadRequest(res, 'El costo de envío debe ser un número no negativo')
-	}
-
-	// Validar taxAmount si está presente
-	if (input.taxAmount !== undefined && (isNaN(input.taxAmount) || input.taxAmount < 0)) {
-		return HttpResponse.BadRequest(res, 'El impuesto debe ser un número no negativo')
+	const phoneRegex = /^\+?[0-9\s\-\(\)]{10,}$/
+	
+	if (!emailRegex.test(input.buyerContact) && !phoneRegex.test(input.buyerContact)) {
+		return HttpResponse.BadRequest(res, 'El contacto del comprador debe ser un email o teléfono válido')
 	}
 
 	// Validar items
@@ -107,18 +77,14 @@ function validateCreateOrderInput(req: Request, res: Response, next: NextFunctio
 		}
 	}
 
-	// Validaciones específicas por tipo de entrega
-	if (input.deliveryType === DeliveryType.SHIP) {
-		if (!input.shippingAddress) return HttpResponse.BadRequest(res, 'La dirección de envío es requerida para envío a domicilio')
-		if (!input.shippingCity) return HttpResponse.BadRequest(res, 'La ciudad de envío es requerida para envío a domicilio')
-		if (!input.shippingPostalCode) return HttpResponse.BadRequest(res, 'El código postal de envío es requerido para envío a domicilio')
-		if (!input.shippingProvince) return HttpResponse.BadRequest(res, 'La provincia de envío es requerida para envío a domicilio')
+	// Validar userId si está presente
+	if (input.userId !== undefined && (isNaN(input.userId) || input.userId <= 0)) {
+		return HttpResponse.BadRequest(res, 'El ID de usuario debe ser un número válido')
 	}
 
-	if (input.deliveryType === DeliveryType.PICKUP) {
-		if (!input.pickupPointId || isNaN(input.pickupPointId) || input.pickupPointId <= 0) {
-			return HttpResponse.BadRequest(res, 'El punto de retiro es requerido para retiro en tienda')
-		}
+	// Validar pickUpPointId si está presente
+	if (input.pickUpPointId !== undefined && (isNaN(input.pickUpPointId) || input.pickUpPointId <= 0)) {
+		return HttpResponse.BadRequest(res, 'El ID del punto de retiro debe ser un número válido')
 	}
 
 	next()

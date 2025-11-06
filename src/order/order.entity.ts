@@ -2,6 +2,7 @@ import { Entity, Property, ManyToOne, Rel, OneToMany, Collection, Cascade, Enum 
 import { BaseEntity } from '../shared/dataBase/baseEntity.js'
 import { User } from '../user/user.entity.js'
 import { OrderItem } from '../orderItem/orderItem.entity.js'
+import { PickUpPoint } from '../pickUpPoint/pickUpPoint.entity.js'
 
 export enum OrderStatus {
 	PENDING = 'pending',
@@ -11,10 +12,6 @@ export enum OrderStatus {
 	CANCELLED = 'cancelled',
 }
 
-export enum DeliveryType {
-	SHIP = 'ship',
-	PICKUP = 'pickup',
-}
 
 @Entity()
 export class Order extends BaseEntity {
@@ -27,44 +24,13 @@ export class Order extends BaseEntity {
 	@Enum(() => OrderStatus)
 	status: OrderStatus = OrderStatus.PENDING
 
-	@Enum(() => DeliveryType)
-	deliveryType!: DeliveryType
-
 	@Property({ type: 'float', nullable: false })
 	totalAmount!: number
 
-	@Property({ type: 'float', nullable: false, default: 0 })
-	shippingCost: number = 0
-
-	@Property({ type: 'float', nullable: false, default: 0 })
-	taxAmount: number = 0
-
 	// Información del comprador
-	@Property({ nullable: false })
-	buyerName!: string
 
 	@Property({ nullable: false })
-	buyerEmail!: string
-
-	@Property({ nullable: true })
-	buyerPhone?: string
-
-	// Dirección de envío
-	@Property({ nullable: true })
-	shippingAddress?: string
-
-	@Property({ nullable: true })
-	shippingCity?: string
-
-	@Property({ nullable: true })
-	shippingPostalCode?: string
-
-	@Property({ nullable: true })
-	shippingProvince?: string
-
-	// Punto de retiro (si es pickup)
-	@Property({ nullable: true })
-	pickupPointId?: number
+	buyerContact!: string // teléfono o email
 
 	// Notas adicionales
 	@Property({ nullable: true, type: 'text' })
@@ -75,4 +41,7 @@ export class Order extends BaseEntity {
 
 	@OneToMany(() => OrderItem, orderItem => orderItem.order, { cascade: [Cascade.ALL] })
 	items = new Collection<OrderItem>(this)
+
+	@ManyToOne(() => PickUpPoint, { nullable: true })
+	pickUpPoint?: Rel<PickUpPoint>
 }

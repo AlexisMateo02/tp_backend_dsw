@@ -1,27 +1,19 @@
 import { orm } from '../shared/dataBase/orm.js'
 import { validateId } from '../shared/utils/validationId.js'
-import { Order, OrderStatus, DeliveryType } from './order.entity.js'
+import { Order, OrderStatus } from './order.entity.js'
 import { OrderItem } from '../orderItem/orderItem.entity.js'
 import { User } from '../user/user.entity.js'
 import { Product } from '../product/product.entity.js'
+import { PickUpPoint } from '../pickUpPoint/pickUpPoint.entity.js'
 
 const entityManager = orm.em
 
 interface OrderCreateData {
-	deliveryType: DeliveryType
 	totalAmount: number
-	shippingCost?: number
-	taxAmount?: number
-	buyerName: string
-	buyerEmail: string
-	buyerPhone?: string
-	shippingAddress?: string
-	shippingCity?: string
-	shippingPostalCode?: string
-	shippingProvince?: string
-	pickupPointId?: number
+	buyerContact: string
 	notes?: string
 	userId?: number
+	pickUpPointId?: number
 	items: Array<{
 		productId: number
 		quantity: number
@@ -35,12 +27,16 @@ interface OrderUpdateData {
 }
 
 export async function getAllOrders() {
-	return await entityManager.find(Order, {}, { populate: ['user', 'items', 'items.product'] })
+	return await entityManager.find(Order, {}, { 
+		populate: ['user', 'items', 'items.product', 'pickUpPoint', 'pickUpPoint.localty'] 
+	})
 }
 
 export async function getOrderById(id: number) {
 	validateId(id, 'orden')
-	const order = await entityManager.findOne(Order, { id }, { populate: ['user', 'items', 'items.product'] })
+	const order = await entityManager.findOne(Order, { id }, { 
+		populate: ['user', 'items', 'items.product', 'pickUpPoint', 'pickUpPoint.localty'] 
+	})
 	if (!order) {
 		throw new Error(`La orden con el ID ${id} no fue encontrada`)
 	}
@@ -49,7 +45,16 @@ export async function getOrderById(id: number) {
 
 export async function getOrdersByUser(userId: number) {
 	validateId(userId, 'usuario')
-	return await entityManager.find(Order, { user: userId }, { populate: ['items', 'items.product'] })
+	return await entityManager.find(Order, { user: userId }, { 
+		populate: ['items', 'items.product', 'pickUpPoint', 'pickUpPoint.localty'] 
+	})
+}
+
+export async function getOrdersByPickUpPoint(pickUpPointId: number) {
+	validateId(pickUpPointId, 'punto de retiro')
+	return await entityManager.find(Order, { pickUpPoint: pickUpPointId }, { 
+		populate: ['user', 'items', 'items.product'] 
+	})
 }
 
 export async function createOrder(orderData: OrderCreateData) {
@@ -57,36 +62,38 @@ export async function createOrder(orderData: OrderCreateData) {
 	const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`
 
 	// Obtener usuario si se especifica
-	let user
+	let user: User | undefined = undefined
 	if (orderData.userId) {
-		user = await entityManager.findOne(User, { id: orderData.userId })
-		if (!user) {
+		const userFound = await entityManager.findOne(User, { id: orderData.userId })
+		if (!userFound) {
 			throw new Error('Usuario no encontrado')
 		}
+		user = userFound
+	}
+
+	// Obtener punto de retiro si se especifica
+	let pickUpPoint: PickUpPoint | undefined = undefined
+	if (orderData.pickUpPointId) {
+		const pickUpPointFound = await entityManager.findOne(PickUpPoint, { id: orderData.pickUpPointId })
+		if (!pickUpPointFound) {
+			throw new Error('Punto de retiro no encontrado')
+		}
+		pickUpPoint = pickUpPointFound
 	}
 
 	// Crear la orden
 	const order = entityManager.create(Order, {
 		orderNumber,
-		deliveryType: orderData.deliveryType,
 		totalAmount: orderData.totalAmount,
-		shippingCost: orderData.shippingCost || 0,
-		taxAmount: orderData.taxAmount || 0,
-		buyerName: orderData.buyerName,
-		buyerEmail: orderData.buyerEmail,
-		buyerPhone: orderData.buyerPhone,
-		shippingAddress: orderData.shippingAddress,
-		shippingCity: orderData.shippingCity,
-		shippingPostalCode: orderData.shippingPostalCode,
-		shippingProvince: orderData.shippingProvince,
-		pickupPointId: orderData.pickupPointId,
+		buyerContact: orderData.buyerContact,
 		notes: orderData.notes,
 		user,
+		pickUpPoint,
 		status: OrderStatus.PENDING,
 		orderDate: new Date(),
 	})
 
-	await entityManager.persistAndFlush(order)
+	await entityManager.persist(order)
 
 	// Crear items de la orden
 	for (const itemData of orderData.items) {
@@ -104,7 +111,7 @@ export async function createOrder(orderData: OrderCreateData) {
 		const priceValue = parseFloat(itemData.priceAtPurchase.replace(/[^\d.]/g, ''))
 		const subtotal = priceValue * itemData.quantity
 
-		// Crear item
+		// Crear item con todos los campos requeridos
 		const orderItem = entityManager.create(OrderItem, {
 			order,
 			product,
@@ -112,14 +119,13 @@ export async function createOrder(orderData: OrderCreateData) {
 			priceAtPurchase: itemData.priceAtPurchase,
 			subtotal,
 			productName: product.Productname,
-			productImage: product.image,
-			sellerId: product.seller?.id,
-			sellerName: product.sellerName,
+			productImage: product.image, // Usar la imagen principal del producto
 		})
 
-		// Actualizar stock y ventas del producto
+		// Actualizar solo el stock del producto (soldCount fue eliminado)
 		product.stock -= itemData.quantity
-		product.soldCount += itemData.quantity
+
+		await entityManager.persist(orderItem)
 	}
 
 	await entityManager.flush()
@@ -133,15 +139,33 @@ export async function updateOrderStatus(id: number, status: OrderStatus) {
 	return order
 }
 
+export async function updateOrder(id: number, orderData: OrderUpdateData) {
+	const order = await getOrderById(id)
+	
+	if (orderData.status !== undefined) {
+		order.status = orderData.status
+	}
+	
+	if (orderData.notes !== undefined) {
+		order.notes = orderData.notes
+	}
+	
+	await entityManager.flush()
+	return order
+}
+
 export async function deleteOrder(id: number) {
 	const order = await getOrderById(id)
 
-	// Restaurar stock de productos
+	// Cargar items para poder acceder a ellos
 	await order.items.loadItems()
+
+	// Restaurar stock de productos (solo stock, soldCount fue eliminado)
 	for (const item of order.items) {
 		if (item.product) {
+			// Asegurarse de que el producto esté cargado
+			await entityManager.populate(item, ['product'])
 			item.product.stock += item.quantity
-			item.product.soldCount -= item.quantity
 		}
 	}
 

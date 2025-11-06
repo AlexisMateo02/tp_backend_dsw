@@ -16,7 +16,6 @@ export interface AuthResponse {
     lastName: string
     email: string
     role: UserRole
-    businessName?: string
   }
   token: string
 }
@@ -56,8 +55,7 @@ export async function login(loginData: LoginData): Promise<AuthResponse> {
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
-      role: user.role,
-      businessName: user.businessName
+      role: user.role
     },
     token
   }

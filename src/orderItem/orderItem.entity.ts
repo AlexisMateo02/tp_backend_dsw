@@ -20,12 +20,6 @@ export class OrderItem extends BaseEntity {
 	@Property({ nullable: true, type: 'text' })
 	productImage?: string
 
-	@Property({ nullable: true })
-	sellerId?: number
-
-	@Property({ nullable: true })
-	sellerName?: string
-
 	@ManyToOne(() => Order, { nullable: false })
 	order!: Rel<Order>
 

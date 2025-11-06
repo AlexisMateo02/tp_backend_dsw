@@ -118,6 +118,19 @@ async function remove(req: Request, res: Response) {
 	}
 }
 
+async function uploadImage(req: Request, res: Response) {
+	try {
+		if (!req.file) {
+			return HttpResponse.BadRequest(res, 'No se subió ninguna imagen')
+		}
+
+		const imageUrl = `/uploads/forum/${req.file.filename}`
+		return HttpResponse.Ok(res, 'Imagen subida correctamente', { imageUrl })
+	} catch (err: any) {
+		return HttpResponse.Error(res, 'Error al subir la imagen')
+	}
+}
+
 export const controllerForumPublishment = {
 	findAll,
 	findOne,
@@ -127,4 +140,5 @@ export const controllerForumPublishment = {
 	add,
 	update,
 	remove,
+	uploadImage,
 }

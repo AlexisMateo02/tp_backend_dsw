@@ -15,17 +15,17 @@ import { boatTypeRouter } from './boatType/boatType.routes.js'
 import { productRouter } from './product/product.routes.js'
 import { orderRouter } from './order/order.routes.js'
 import { reviewRouter } from './review/review.routes.js'
-import { forumPublishmentRouter } from './ForumPublishment/forumPublishment.routes.js' 
+import { forumPublishmentRouter } from './ForumPublishment/forumPublishment.routes.js'
 import { userRouter } from './user/user.routes.js'
-import {authRouter} from './auth/auth.routes.js'
+import { authRouter } from './auth/auth.routes.js'
 
 //! Middlewares globales
 const app = express()
 app.use(
-  cors({
-    origin: config.frontendUrl, 
-    credentials: true,
-  })
+	cors({
+		origin: config.frontendUrl,
+		credentials: true,
+	})
 )
 app.use(express.json())
 app.use(express.static('public'))
@@ -35,29 +35,8 @@ app.use((req, res, next) => {
 	RequestContext.create(orm.em, next)
 })
 
-//! ✅ RUTAS DE HEALTH CHECK Y RAÍZ
-app.get('/health', (req, res) => {
-	res.json({
-		status: 'OK',
-		message: 'Servidor funcionando correctamente',
-		database: config.db.name,
-		environment: config.nodeEnv,
-		timestamp: new Date().toISOString()
-	})
-})
-
-app.get('/', (req, res) => {
-	res.json({
-		message: 'Bienvenido a Kayak Brokers API',
-		version: '1.0.0',
-		endpoints: {
-			health: '/health',
-			forum: '/api/forum-publishments',
-			products: '/api/products',
-			users: '/api/users'
-		}
-	})
-})
+//! Middleware para imágenes
+app.use('/uploads', express.static('uploads'))
 
 //! Rutas específicas de la aplicación
 //? Ir agregando las rutas necesarias
@@ -71,11 +50,9 @@ app.use('/api/boatTypes', boatTypeRouter)
 app.use('/api/products', productRouter)
 app.use('/api/orders', orderRouter)
 app.use('/api/reviews', reviewRouter)
-app.use('/api/forum-publishments', forumPublishmentRouter) 
+app.use('/api/forum-publishments', forumPublishmentRouter)
 app.use('/api/users', userRouter)
-app.use('/api/auth', authRouter);
-
-// Rutas para Autenticación (agregar cuando las tengas)
+app.use('/api/auth', authRouter)
 
 app.use((_, res) => {
 	return res.status(404).json({ message: 'Resource not found' })

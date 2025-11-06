@@ -6,6 +6,7 @@ import {
 	validateUpdateInput,
 } from './forumPublishment.middleware.js'
 import { authenticate, requireCustomer } from '../auth/auth.middleware.js'
+import { uploadMiddleware } from '../shared/middlewares/upload.middleware.js'
 
 export const forumPublishmentRouter = express.Router()
 
@@ -36,3 +37,11 @@ forumPublishmentRouter.put(
 )
 
 forumPublishmentRouter.delete('/:id', authenticate, requireCustomer, controllerForumPublishment.remove)
+
+forumPublishmentRouter.post(
+	'/upload-image',
+	authenticate,
+	requireCustomer,
+	uploadMiddleware.single('image'),
+	controllerForumPublishment.uploadImage
+)

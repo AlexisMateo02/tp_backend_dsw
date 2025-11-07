@@ -1,5 +1,6 @@
 import 'reflect-metadata'
 import express from 'express'
+import path from 'path'
 import { orm, syncSchema } from './shared/dataBase/orm.js'
 import { RequestContext } from '@mikro-orm/core'
 import cors from 'cors'
@@ -36,7 +37,7 @@ app.use((req, res, next) => {
 })
 
 //! Middleware para imágenes
-app.use('/uploads', express.static('uploads'))
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')))
 
 //! Rutas específicas de la aplicación
 //? Ir agregando las rutas necesarias

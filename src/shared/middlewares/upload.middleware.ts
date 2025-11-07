@@ -1,13 +1,21 @@
 import multer from 'multer'
 import path from 'path'
-import { Request } from 'express'
+import fs from 'fs'
+
+// Crear directorio si no existe
+const uploadDir = 'uploads/forum'
+if (!fs.existsSync(uploadDir)) {
+	fs.mkdirSync(uploadDir, { recursive: true })
+	console.log('📁 Created upload directory:', uploadDir)
+}
 
 const storage = multer.diskStorage({
 	destination: (req, file, cb) => {
-		cb(null, 'uploads/forum/')
+		cb(null, uploadDir)
 	},
 	filename: (req, file, cb) => {
 		const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1e9)}${path.extname(file.originalname)}`
+		console.log('💾 Saving file as:', uniqueName)
 		cb(null, uniqueName)
 	},
 })
@@ -15,13 +23,16 @@ const storage = multer.diskStorage({
 export const uploadMiddleware = multer({
 	storage,
 	limits: {
-		fileSize: 5 * 1024 * 1024, // 5MB límite
+		fileSize: 10 * 1024 * 1024, // 10MB - aumenta el límite
 	},
 	fileFilter: (req, file, cb) => {
+		console.log('🔍 File filter checking:', file.mimetype, file.originalname)
+
 		if (file.mimetype.startsWith('image/')) {
 			cb(null, true)
 		} else {
-			cb(new Error('Solo se permiten imágenes'))
+			console.log('❌ File type rejected:', file.mimetype)
+			cb(new Error('Solo se permiten imágenes (JPEG, PNG, etc.)'))
 		}
 	},
 })

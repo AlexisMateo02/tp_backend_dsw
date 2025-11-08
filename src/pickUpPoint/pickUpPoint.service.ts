@@ -12,7 +12,7 @@ interface PickUpPointCreateData {
 	adressDescription?: string
 	phoneNumber?: string
 	horary?: string
-	localtyId: number
+	localty: number  // CAMBIAR: de localtyId a localty
 }
 
 interface PickUpPointUpdateData extends Partial<PickUpPointCreateData> {}
@@ -36,10 +36,12 @@ export async function getPickUpPointsByLocalty(localtyId: number) {
 }
 
 export async function createPickUpPoint(pickUpPointData: PickUpPointCreateData) {
-	// Obtener localidad
-	const localty = await entityManager.findOne(Localty, { id: pickUpPointData.localtyId })
+	console.log('🔍 DEBUG - Service createPickUpPoint recibió:', pickUpPointData)
+	
+	// Obtener localidad - usar pickUpPointData.localty en lugar de pickUpPointData.localtyId
+	const localty = await entityManager.findOne(Localty, { id: pickUpPointData.localty })
 	if (!localty) {
-		throw new Error(`La localidad con ID ${pickUpPointData.localtyId} no existe`)
+		throw new Error(`La localidad con ID ${pickUpPointData.localty} no existe`)
 	}
 
 	const pickUpPoint = entityManager.create(PickUpPoint, {
@@ -58,11 +60,11 @@ export async function createPickUpPoint(pickUpPointData: PickUpPointCreateData) 
 export async function updatePickUpPoint(id: number, pickUpPointData: PickUpPointUpdateData) {
 	const pickUpPoint = await getPickUpPointById(id)
 
-	// Si se actualiza la localidad
-	if (pickUpPointData.localtyId) {
-		const localty = await entityManager.findOne(Localty, { id: pickUpPointData.localtyId })
+	// Si se actualiza la localidad - usar pickUpPointData.localty en lugar de pickUpPointData.localtyId
+	if (pickUpPointData.localty) {
+		const localty = await entityManager.findOne(Localty, { id: pickUpPointData.localty })
 		if (!localty) {
-			throw new Error(`La localidad con ID ${pickUpPointData.localtyId} no existe`)
+			throw new Error(`La localidad con ID ${pickUpPointData.localty} no existe`)
 		}
 		pickUpPoint.localty = localty
 	}

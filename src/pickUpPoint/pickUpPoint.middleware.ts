@@ -1,124 +1,173 @@
+
 import { Request, Response, NextFunction } from 'express'
 import { HttpResponse } from '../shared/errors/errorManager.js'
 
+interface SanitizedPickUpPointInput {
+    storeName?: string
+    address?: string
+    adressDescription?: string
+    phoneNumber?: string
+    horary?: string
+    localty?: number
+}
+
 function sanitizePickUpPointInput(req: Request, res: Response, next: NextFunction) {
-	req.body.sanitizedInput = {
-		storeName: typeof req.body.storeName === 'string' ? req.body.storeName.trim() : undefined,
-		address: typeof req.body.address === 'string' ? req.body.address.trim() : undefined,
-		adressDescription: typeof req.body.adressDescription === 'string' ? req.body.adressDescription.trim() : undefined,
-		phoneNumber: typeof req.body.phoneNumber === 'string' ? req.body.phoneNumber.trim() : undefined,
-		horary: typeof req.body.horary === 'string' ? req.body.horary.trim() : undefined,
-		localty: req.body.localty !== undefined ? Number(req.body.localty) : undefined,
-	}
+    console.log('🔍 DEBUG - Body recibido en sanitizePickUpPointInput:', req.body)
+    console.log('🔍 DEBUG - localty value:', req.body.localty)
+    console.log('🔍 DEBUG - localty type:', typeof req.body.localty)
 
-	// Eliminar campos undefined
-	Object.keys(req.body.sanitizedInput).forEach(key => {
-		if (req.body.sanitizedInput[key] === undefined) {
-			delete req.body.sanitizedInput[key]
-		}
-	})
+    // Para crear un nuevo PickUpPoint, localty es obligatorio
+    if (req.method === 'POST') {
+        if (req.body.localty === undefined || req.body.localty === null) {
+            console.log('❌ localty es undefined o null en POST')
+            return HttpResponse.BadRequest(res, 'La localidad es requerida')
+        }
+        
+        // Validar que localty sea un número válido
+        const localtyId = Number(req.body.localty)
+        if (isNaN(localtyId) || localtyId <= 0) {
+            console.log('❌ localty no es un número válido:', req.body.localty)
+            return HttpResponse.BadRequest(res, 'La localidad debe ser un ID válido')
+        }
+    }
 
-	next()
+    const sanitizedInput: SanitizedPickUpPointInput = {
+        storeName: typeof req.body.storeName === 'string' ? req.body.storeName.trim() : undefined,
+        address: typeof req.body.address === 'string' ? req.body.address.trim() : undefined,
+        adressDescription: typeof req.body.adressDescription === 'string' ? req.body.adressDescription.trim() : undefined,
+        phoneNumber: typeof req.body.phoneNumber === 'string' ? req.body.phoneNumber.trim() : undefined,
+        horary: typeof req.body.horary === 'string' ? req.body.horary.trim() : undefined,
+        localty: req.body.localty !== undefined ? Number(req.body.localty) : undefined,
+    }
+
+    console.log('🔍 DEBUG - sanitizedInput antes de limpiar:', sanitizedInput)
+
+    // Eliminar campos undefined (pero mantener localty en creación)
+    Object.keys(sanitizedInput).forEach(key => {
+        const typedKey = key as keyof SanitizedPickUpPointInput
+        if (sanitizedInput[typedKey] === undefined) {
+            delete sanitizedInput[typedKey]
+        }
+    })
+
+    req.body.sanitizedInput = sanitizedInput
+
+    console.log('🔍 DEBUG - sanitizedInput después de limpiar:', req.body.sanitizedInput)
+
+    next()
 }
 
 function validateCreatePickUpPointInput(req: Request, res: Response, next: NextFunction) {
-	const input = req.body.sanitizedInput
+    const input: SanitizedPickUpPointInput = req.body.sanitizedInput
 
-	// Campos obligatorios
-	if (!input.address) return HttpResponse.BadRequest(res, 'La dirección es requerida')
-	if (!input.localty) return HttpResponse.BadRequest(res, 'La localidad es requerida')
+    console.log('🔍 DEBUG - Validando creación con input:', input)
 
-	// Validar storeName si está presente
-	if (input.storeName && input.storeName.length > 100) {
-		return HttpResponse.BadRequest(res, 'El nombre de la tienda no puede exceder los 100 caracteres')
-	}
+    // Campos obligatorios
+    if (!input.address) {
+        console.log('❌ Falta address en validación')
+        return HttpResponse.BadRequest(res, 'La dirección es requerida')
+    }
+    if (!input.localty) {
+        console.log('❌ Falta localty en validación:', input)
+        return HttpResponse.BadRequest(res, 'La localidad es requerida')
+    }
 
-	// Validar dirección
-	if (input.address.length < 5) {
-		return HttpResponse.BadRequest(res, 'La dirección debe tener al menos 5 caracteres')
-	}
-	if (input.address.length > 200) {
-		return HttpResponse.BadRequest(res, 'La dirección no puede exceder los 200 caracteres')
-	}
+    // Validar storeName si está presente
+    if (input.storeName && input.storeName.length > 100) {
+        return HttpResponse.BadRequest(res, 'El nombre de la tienda no puede exceder los 100 caracteres')
+    }
 
-	// Validar descripción de dirección si está presente
-	if (input.adressDescription && input.adressDescription.length > 500) {
-		return HttpResponse.BadRequest(res, 'La descripción de dirección no puede exceder los 500 caracteres')
-	}
+    // Validar dirección
+    if (input.address.length < 5) {
+        return HttpResponse.BadRequest(res, 'La dirección debe tener al menos 5 caracteres')
+    }
+    if (input.address.length > 200) {
+        return HttpResponse.BadRequest(res, 'La dirección no puede exceder los 200 caracteres')
+    }
 
-	// Validar phoneNumber si está presente
-	if (input.phoneNumber && !/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/.test(input.phoneNumber)) {
-		return HttpResponse.BadRequest(res, 'El número de teléfono no tiene un formato válido')
-	}
+    // Validar descripción de dirección si está presente
+    if (input.adressDescription && input.adressDescription.length > 500) {
+        return HttpResponse.BadRequest(res, 'La descripción de dirección no puede exceder los 500 caracteres')
+    }
 
-	// Validar horary si está presente (longitud máxima)
-	if (input.horary && input.horary.length > 100) {
-		return HttpResponse.BadRequest(res, 'El horario no puede exceder los 100 caracteres')
-	}
+    // Validar phoneNumber si está presente
+    if (input.phoneNumber && !/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/.test(input.phoneNumber)) {
+        return HttpResponse.BadRequest(res, 'El número de teléfono no tiene un formato válido')
+    }
 
-	// Validar localidad (ID)
-	if (isNaN(input.localty) || input.localty <= 0) {
-		return HttpResponse.BadRequest(res, 'La localidad debe ser un ID válido')
-	}
+    // Validar horary si está presente (longitud máxima)
+    if (input.horary && input.horary.length > 100) {
+        return HttpResponse.BadRequest(res, 'El horario no puede exceder los 100 caracteres')
+    }
 
-	next()
+    // Validar localidad (ID)
+    if (isNaN(input.localty) || input.localty <= 0) {
+        return HttpResponse.BadRequest(res, 'La localidad debe ser un ID válido')
+    }
+
+    console.log('✅ Validación de creación pasada')
+    next()
 }
 
 function validateUpdatePickUpPointInput(req: Request, res: Response, next: NextFunction) {
-	const input = req.body.sanitizedInput
+    const input: SanitizedPickUpPointInput = req.body.sanitizedInput
 
-	const hasFields = Object.keys(input).some(key => input[key] !== undefined)
-	if (!hasFields) {
-		return HttpResponse.BadRequest(res, 'Se debe proporcionar al menos un campo para actualizar')
-	}
+    const hasFields = Object.keys(input).some(key => {
+        const typedKey = key as keyof SanitizedPickUpPointInput
+        return input[typedKey] !== undefined
+    })
+    
+    if (!hasFields) {
+        return HttpResponse.BadRequest(res, 'Se debe proporcionar al menos un campo para actualizar')
+    }
 
-	// Validar storeName si está presente
-	if (input.storeName !== undefined && input.storeName !== '' && input.storeName.length > 100) {
-		return HttpResponse.BadRequest(res, 'El nombre de la tienda no puede exceder los 100 caracteres')
-	}
+    // Validar storeName si está presente
+    if (input.storeName !== undefined && input.storeName !== '' && input.storeName.length > 100) {
+        return HttpResponse.BadRequest(res, 'El nombre de la tienda no puede exceder los 100 caracteres')
+    }
 
-	// Validar dirección si está presente
-	if (input.address !== undefined) {
-		if (!input.address || input.address.trim() === '') {
-			return HttpResponse.BadRequest(res, 'La dirección no puede estar vacía')
-		}
-		if (input.address.length < 5) {
-			return HttpResponse.BadRequest(res, 'La dirección debe tener al menos 5 caracteres')
-		}
-		if (input.address.length > 200) {
-			return HttpResponse.BadRequest(res, 'La dirección no puede exceder los 200 caracteres')
-		}
-	}
+    // Validar dirección si está presente
+    if (input.address !== undefined) {
+        if (!input.address || input.address.trim() === '') {
+            return HttpResponse.BadRequest(res, 'La dirección no puede estar vacía')
+        }
+        if (input.address.length < 5) {
+            return HttpResponse.BadRequest(res, 'La dirección debe tener al menos 5 caracteres')
+        }
+        if (input.address.length > 200) {
+            return HttpResponse.BadRequest(res, 'La dirección no puede exceder los 200 caracteres')
+        }
+    }
 
-	// Validar descripción de dirección si está presente
-	if (input.adressDescription !== undefined && input.adressDescription.length > 500) {
-		return HttpResponse.BadRequest(res, 'La descripción de dirección no puede exceder los 500 caracteres')
-	}
+    // Validar descripción de dirección si está presente
+    if (input.adressDescription !== undefined && input.adressDescription.length > 500) {
+        return HttpResponse.BadRequest(res, 'La descripción de dirección no puede exceder los 500 caracteres')
+    }
 
-	// Validar phoneNumber si está presente
-	if (input.phoneNumber !== undefined && input.phoneNumber !== '') {
-		if (!/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/.test(input.phoneNumber)) {
-			return HttpResponse.BadRequest(res, 'El número de teléfono no tiene un formato válido')
-		}
-	}
+    // Validar phoneNumber si está presente
+    if (input.phoneNumber !== undefined && input.phoneNumber !== '') {
+        if (!/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/.test(input.phoneNumber)) {
+            return HttpResponse.BadRequest(res, 'El número de teléfono no tiene un formato válido')
+        }
+    }
 
-	// Validar horary si está presente
-	if (input.horary !== undefined && input.horary.length > 100) {
-		return HttpResponse.BadRequest(res, 'El horario no puede exceder los 100 caracteres')
-	}
+    // Validar horary si está presente
+    if (input.horary !== undefined && input.horary.length > 100) {
+        return HttpResponse.BadRequest(res, 'El horario no puede exceder los 100 caracteres')
+    }
 
-	// Validar localidad si está presente
-	if (input.localty !== undefined) {
-		if (isNaN(input.localty) || input.localty <= 0) {
-			return HttpResponse.BadRequest(res, 'La localidad debe ser un ID válido')
-		}
-	}
+    // Validar localidad si está presente
+    if (input.localty !== undefined) {
+        if (isNaN(input.localty) || input.localty <= 0) {
+            return HttpResponse.BadRequest(res, 'La localidad debe ser un ID válido')
+        }
+    }
 
-	next()
+    next()
 }
 
 export { 
-	sanitizePickUpPointInput, 
-	validateCreatePickUpPointInput, 
-	validateUpdatePickUpPointInput 
+    sanitizePickUpPointInput, 
+    validateCreatePickUpPointInput, 
+    validateUpdatePickUpPointInput 
 }

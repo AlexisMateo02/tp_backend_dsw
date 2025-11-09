@@ -98,20 +98,6 @@ function validateCreateInput(req: Request, res: Response, next: NextFunction) {
         }
     }
 
-    // Validaciones para imágenes (longitud de URLs/texto)
-    if (input.image.length > 500) {
-        return HttpResponse.BadRequest(res, 'La URL de la imagen principal es demasiado larga')
-    }
-    if (input.secondImage && input.secondImage.length > 500) {
-        return HttpResponse.BadRequest(res, 'La URL de la segunda imagen es demasiado larga')
-    }
-    if (input.thirdImage && input.thirdImage.length > 500) {
-        return HttpResponse.BadRequest(res, 'La URL de la tercera imagen es demasiado larga')
-    }
-    if (input.fourthImage && input.fourthImage.length > 500) {
-        return HttpResponse.BadRequest(res, 'La URL de la cuarta imagen es demasiado larga')
-    }
-
     // Validaciones para descripción e includes
     if (input.description && input.description.length > 2000) {
         return HttpResponse.BadRequest(res, 'La descripción no puede exceder los 2000 caracteres')
@@ -212,20 +198,6 @@ function validateUpdateInput(req: Request, res: Response, next: NextFunction) {
         if (input.stock > 10000) {
             return HttpResponse.BadRequest(res, 'El stock no puede exceder 10,000 unidades')
         }
-    }
-
-    // Validaciones para imágenes (si se proporcionan)
-    if (input.image !== undefined && input.image.length > 500) {
-        return HttpResponse.BadRequest(res, 'La URL de la imagen principal es demasiado larga')
-    }
-    if (input.secondImage !== undefined && input.secondImage && input.secondImage.length > 500) {
-        return HttpResponse.BadRequest(res, 'La URL de la segunda imagen es demasiado larga')
-    }
-    if (input.thirdImage !== undefined && input.thirdImage && input.thirdImage.length > 500) {
-        return HttpResponse.BadRequest(res, 'La URL de la tercera imagen es demasiado larga')
-    }
-    if (input.fourthImage !== undefined && input.fourthImage && input.fourthImage.length > 500) {
-        return HttpResponse.BadRequest(res, 'La URL de la cuarta imagen es demasiado larga')
     }
 
     // Validaciones para descripción e includes (si se proporcionan)

@@ -12,6 +12,7 @@ interface OrderCreateData {
 	totalAmount: number
 	buyerContact: string
 	notes?: string
+  	shippingAddress?: string  // 🆕 NUEVO CAMPO
 	userId?: number
 	pickUpPointId?: number
 	items: Array<{
@@ -56,45 +57,55 @@ export async function getOrdersByPickUpPoint(pickUpPointId: number) {
 		populate: ['user', 'items', 'items.product'] 
 	})
 }
-
 export async function createOrder(orderData: OrderCreateData) {
-	// Generar número de orden único
-	const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`
+  // Generar número de orden único
+  const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`
 
-	// Obtener usuario si se especifica
-	let user: User | undefined = undefined
-	if (orderData.userId) {
-		const userFound = await entityManager.findOne(User, { id: orderData.userId })
-		if (!userFound) {
-			throw new Error('Usuario no encontrado')
-		}
-		user = userFound
-	}
+  // Obtener usuario si se especifica
+  let user: User | undefined = undefined
+  if (orderData.userId) {
+    const userFound = await entityManager.findOne(User, { id: orderData.userId })
+    if (!userFound) {
+      throw new Error('Usuario no encontrado')
+    }
+    user = userFound
+  }
 
-	// Obtener punto de retiro si se especifica
-	let pickUpPoint: PickUpPoint | undefined = undefined
-	if (orderData.pickUpPointId) {
-		const pickUpPointFound = await entityManager.findOne(PickUpPoint, { id: orderData.pickUpPointId })
-		if (!pickUpPointFound) {
-			throw new Error('Punto de retiro no encontrado')
-		}
-		pickUpPoint = pickUpPointFound
-	}
+  // Obtener punto de retiro si se especifica
+  let pickUpPoint: PickUpPoint | undefined = undefined
+  if (orderData.pickUpPointId) {
+    const pickUpPointFound = await entityManager.findOne(PickUpPoint, { id: orderData.pickUpPointId })
+    if (!pickUpPointFound) {
+      throw new Error('Punto de retiro no encontrado')
+    }
+    pickUpPoint = pickUpPointFound
+  }
 
-	// Crear la orden
-	const order = entityManager.create(Order, {
-		orderNumber,
-		totalAmount: orderData.totalAmount,
-		buyerContact: orderData.buyerContact,
-		notes: orderData.notes,
-		user,
-		pickUpPoint,
-		status: OrderStatus.PENDING,
-		orderDate: new Date(),
-	})
+  // 🆕 VALIDACIÓN: No puede tener ambos shippingAddress Y pickUpPoint
+  if (orderData.shippingAddress && orderData.pickUpPointId) {
+    throw new Error('La orden no puede tener both dirección de envío y punto de retiro')
+  }
 
-	await entityManager.persist(order)
+  // 🆕 VALIDACIÓN: Debe tener uno u otro
+  if (!orderData.shippingAddress && !orderData.pickUpPointId) {
+    throw new Error('La orden debe tener either dirección de envío o punto de retiro')
+  }
 
+  // Crear la orden
+  const order = entityManager.create(Order, {
+    orderNumber,
+    totalAmount: orderData.totalAmount,
+    buyerContact: orderData.buyerContact,
+    notes: orderData.notes,
+    shippingAddress: orderData.shippingAddress,  // 🆕 NUEVO CAMPO
+    user,
+    pickUpPoint,
+    status: OrderStatus.PENDING,
+    orderDate: new Date(),
+  })
+
+  await entityManager.persist(order)
+  
 	// Crear items de la orden
 	for (const itemData of orderData.items) {
 		const product = await entityManager.findOne(Product, { id: itemData.productId })

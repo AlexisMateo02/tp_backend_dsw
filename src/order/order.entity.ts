@@ -32,6 +32,9 @@ export class Order extends BaseEntity {
 	@Property({ nullable: false })
 	buyerContact!: string // teléfono o email
 
+	@Property({ nullable: true, type: 'text' })
+  	shippingAddress?: string
+
 	// Notas adicionales
 	@Property({ nullable: true, type: 'text' })
 	notes?: string

@@ -12,6 +12,7 @@ interface PickUpPointCreateData {
 	adressDescription?: string
 	phoneNumber?: string
 	horary?: string
+	image?: string
 	localty: number  // CAMBIAR: de localtyId a localty
 }
 
@@ -36,27 +37,42 @@ export async function getPickUpPointsByLocalty(localtyId: number) {
 }
 
 export async function createPickUpPoint(pickUpPointData: PickUpPointCreateData) {
-	console.log('🔍 DEBUG - Service createPickUpPoint recibió:', pickUpPointData)
-	
-	// Obtener localidad - usar pickUpPointData.localty en lugar de pickUpPointData.localtyId
-	const localty = await entityManager.findOne(Localty, { id: pickUpPointData.localty })
-	if (!localty) {
-		throw new Error(`La localidad con ID ${pickUpPointData.localty} no existe`)
-	}
+    console.log('🔍 DEBUG - Service createPickUpPoint recibió:', {
+        ...pickUpPointData,
+        imageLength: pickUpPointData.image ? pickUpPointData.image.length : 0
+    })
+    
+    // Obtener localidad
+    const localty = await entityManager.findOne(Localty, { id: pickUpPointData.localty })
+    if (!localty) {
+        throw new Error(`La localidad con ID ${pickUpPointData.localty} no existe`)
+    }
 
-	const pickUpPoint = entityManager.create(PickUpPoint, {
-		storeName: pickUpPointData.storeName,
-		address: pickUpPointData.address,
-		adressDescription: pickUpPointData.adressDescription,
-		phoneNumber: pickUpPointData.phoneNumber,
-		horary: pickUpPointData.horary,
-		localty,
-	})
+    console.log('🔄 Creando entidad PickUpPoint...')
+    
+    try {
+        const pickUpPoint = entityManager.create(PickUpPoint, {
+            storeName: pickUpPointData.storeName,
+            address: pickUpPointData.address,
+            adressDescription: pickUpPointData.adressDescription,
+            phoneNumber: pickUpPointData.phoneNumber,
+            horary: pickUpPointData.horary,
+            image: pickUpPointData.image,
+            localty,
+        })
 
-	await entityManager.flush()
-	return pickUpPoint
+        console.log('✅ Entidad creada, haciendo flush...')
+        
+        await entityManager.flush()
+        
+        console.log('✅ Flush completado, retornando pickUpPoint con ID:', pickUpPoint.id)
+        
+        return pickUpPoint
+    } catch (error) {
+        console.error('❌ ERROR en createPickUpPoint:', error)
+        throw error
+    }
 }
-
 export async function updatePickUpPoint(id: number, pickUpPointData: PickUpPointUpdateData) {
 	const pickUpPoint = await getPickUpPointById(id)
 

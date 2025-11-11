@@ -21,6 +21,8 @@ export class PickUpPoint extends BaseEntity {
 	@Property({ nullable: true })
 	horary?: string
 
+	@Property({ nullable: true, type: 'text'})
+	image?: string
 
 	@ManyToOne(() => Localty, { nullable: false })
 	localty!: Rel<Localty>

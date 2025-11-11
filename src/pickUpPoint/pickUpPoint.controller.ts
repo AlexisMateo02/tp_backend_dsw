@@ -48,16 +48,28 @@ async function findByLocalty(req: Request, res: Response) {
 }
 
 async function add(req: Request, res: Response) {
-	try {
-		const pickUpPointData = req.body.sanitizedInput
-		const pickUpPoint = await createPickUpPoint(pickUpPointData)
-		return HttpResponse.Created(res, 'Punto de retiro creado correctamente', pickUpPoint)
-	} catch (err: any) {
-		if (err.message.includes('no existe')) {
-			return HttpResponse.NotFound(res, err.message)
-		}
-		return HttpResponse.Error(res, 'Fallo al crear punto de retiro')
-	}
+  try {
+    const pickUpPointData = req.body.sanitizedInput;
+    console.log('🔄 DEBUG - Controller add recibió:', {
+      ...pickUpPointData,
+      imageLength: pickUpPointData.image ? pickUpPointData.image.length : 0
+    });
+    
+    const pickUpPoint = await createPickUpPoint(pickUpPointData);
+    
+    console.log('✅ DEBUG - Controller add retorna:', {
+      id: pickUpPoint.id,
+      image: pickUpPoint.image ? `Presente (${pickUpPoint.image.length} chars)` : 'Ausente'
+    });
+    
+    return HttpResponse.Created(res, 'Punto de retiro creado correctamente', pickUpPoint);
+  } catch (err: any) {
+    console.error('❌ DEBUG - Error en controller add:', err); // <-- Asegúrate de loguear el error completo
+    if (err.message.includes('no existe')) {
+      return HttpResponse.NotFound(res, err.message);
+    }
+    return HttpResponse.Error(res, 'Fallo al crear punto de retiro');
+  }
 }
 
 async function update(req: Request, res: Response) {

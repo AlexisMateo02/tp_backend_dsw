@@ -1,4 +1,3 @@
-
 import { Request, Response, NextFunction } from 'express'
 import { HttpResponse } from '../shared/errors/errorManager.js'
 
@@ -8,13 +7,15 @@ interface SanitizedPickUpPointInput {
     adressDescription?: string
     phoneNumber?: string
     horary?: string
+    image?: string
     localty?: number
 }
 
 function sanitizePickUpPointInput(req: Request, res: Response, next: NextFunction) {
-    console.log('🔍 DEBUG - Body recibido en sanitizePickUpPointInput:', req.body)
-    console.log('🔍 DEBUG - localty value:', req.body.localty)
-    console.log('🔍 DEBUG - localty type:', typeof req.body.localty)
+    console.log('🔍 DEBUG - Body recibido en sanitizePickUpPointInput:', {
+        ...req.body,
+        imageLength: req.body.image ? req.body.image.length : 0
+    })
 
     // Para crear un nuevo PickUpPoint, localty es obligatorio
     if (req.method === 'POST') {
@@ -37,10 +38,14 @@ function sanitizePickUpPointInput(req: Request, res: Response, next: NextFunctio
         adressDescription: typeof req.body.adressDescription === 'string' ? req.body.adressDescription.trim() : undefined,
         phoneNumber: typeof req.body.phoneNumber === 'string' ? req.body.phoneNumber.trim() : undefined,
         horary: typeof req.body.horary === 'string' ? req.body.horary.trim() : undefined,
+        image: req.body.image, // NO recortar la imagen, es base64
         localty: req.body.localty !== undefined ? Number(req.body.localty) : undefined,
     }
 
-    console.log('🔍 DEBUG - sanitizedInput antes de limpiar:', sanitizedInput)
+    console.log('🔍 DEBUG - sanitizedInput con imagen:', {
+        ...sanitizedInput,
+        imageLength: sanitizedInput.image ? sanitizedInput.image.length : 0
+    })
 
     // Eliminar campos undefined (pero mantener localty en creación)
     Object.keys(sanitizedInput).forEach(key => {
@@ -52,7 +57,10 @@ function sanitizePickUpPointInput(req: Request, res: Response, next: NextFunctio
 
     req.body.sanitizedInput = sanitizedInput
 
-    console.log('🔍 DEBUG - sanitizedInput después de limpiar:', req.body.sanitizedInput)
+    console.log('🔍 DEBUG - sanitizedInput después de limpiar:', {
+        ...req.body.sanitizedInput,
+        imageLength: req.body.sanitizedInput.image ? req.body.sanitizedInput.image.length : 0
+    })
 
     next()
 }
@@ -60,7 +68,10 @@ function sanitizePickUpPointInput(req: Request, res: Response, next: NextFunctio
 function validateCreatePickUpPointInput(req: Request, res: Response, next: NextFunction) {
     const input: SanitizedPickUpPointInput = req.body.sanitizedInput
 
-    console.log('🔍 DEBUG - Validando creación con input:', input)
+    console.log('🔍 DEBUG - Validando creación con input:', {
+        ...input,
+        imageLength: input.image ? input.image.length : 0
+    })
 
     // Campos obligatorios
     if (!input.address) {
@@ -100,6 +111,11 @@ function validateCreatePickUpPointInput(req: Request, res: Response, next: NextF
         return HttpResponse.BadRequest(res, 'El horario no puede exceder los 100 caracteres')
     }
 
+    // CORRECCIÓN: SOLO UNA VALIDACIÓN DE IMAGEN - eliminar la duplicada
+    if (input.image && input.image.length > 10000000) { // ~10MB para base64
+        return HttpResponse.BadRequest(res, 'La imagen es demasiado grande')
+    }
+
     // Validar localidad (ID)
     if (isNaN(input.localty) || input.localty <= 0) {
         return HttpResponse.BadRequest(res, 'La localidad debe ser un ID válido')
@@ -111,6 +127,11 @@ function validateCreatePickUpPointInput(req: Request, res: Response, next: NextF
 
 function validateUpdatePickUpPointInput(req: Request, res: Response, next: NextFunction) {
     const input: SanitizedPickUpPointInput = req.body.sanitizedInput
+
+    console.log('🔍 DEBUG - Validando actualización con input:', {
+        ...input,
+        imageLength: input.image ? input.image.length : 0
+    })
 
     const hasFields = Object.keys(input).some(key => {
         const typedKey = key as keyof SanitizedPickUpPointInput
@@ -156,6 +177,11 @@ function validateUpdatePickUpPointInput(req: Request, res: Response, next: NextF
         return HttpResponse.BadRequest(res, 'El horario no puede exceder los 100 caracteres')
     }
 
+    // Validar imagen si está presente
+    if (input.image !== undefined && input.image.length > 5000000) {
+        return HttpResponse.BadRequest(res, 'La imagen es demasiado grande')
+    }
+
     // Validar localidad si está presente
     if (input.localty !== undefined) {
         if (isNaN(input.localty) || input.localty <= 0) {
@@ -163,6 +189,7 @@ function validateUpdatePickUpPointInput(req: Request, res: Response, next: NextF
         }
     }
 
+    console.log('✅ Validación de actualización pasada')
     next()
 }
 

@@ -30,7 +30,6 @@ export class ForumPublishment extends BaseEntity {
 
 	@ManyToOne(() => User, {
 		nullable: false,
-		cascade: [Cascade.REMOVE],
 		eager: true,
 	})
 	author!: Rel<User>

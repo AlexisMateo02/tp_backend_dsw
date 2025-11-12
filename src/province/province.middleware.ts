@@ -3,8 +3,8 @@ import { HttpResponse } from '../shared/errors/errorManager.js'
 
 function sanitizeProvinceInput(req: Request, res: Response, next: NextFunction) {
 	req.body.sanitizedInput = {
-		name: typeof req.body.name === 'string' ? req.body.name.trim().toUpperCase() : undefined,
-		country: typeof req.body.country === 'string' ? req.body.country.trim().toUpperCase() : undefined,
+		name: typeof req.body.name === 'string' ? req.body.name.trim() : undefined,
+		country: typeof req.body.country === 'string' ? req.body.country.trim() : undefined,
 	}
 
 	Object.keys(req.body.sanitizedInput).forEach(key => {
